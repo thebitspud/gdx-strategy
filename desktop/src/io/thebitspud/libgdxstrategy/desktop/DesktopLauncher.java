@@ -1,12 +1,17 @@
 package io.thebitspud.libgdxstrategy.desktop;
 
-import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import io.thebitspud.libgdxstrategy.StrategyGame;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
-		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		new LwjglApplication(new StrategyGame(), config);
+		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
+
+		config.setWindowedMode(900, 600);
+		config.setResizable(false);
+		config.setTitle("LibGDX Strategy Game");
+
+		new Lwjgl3Application(new StrategyGame(), config);
 	}
 }
