@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
@@ -43,10 +44,10 @@ public class AssetLibrary extends AssetManager {
 		final Texture unitSheet = this.get("units.png", Texture.class);
 		final Texture buttonSheet = this.get("buttons.png", Texture.class);
 
-		for(int i = 0; i < 8; i++)
+		for (int i = 0; i < 8; i++)
 			tiles[i] = new TextureRegion(tileSheet,i * 64, 0, 64, 64);
 
-		for(int i = 0; i < 4; i++) {
+		for (int i = 0; i < 4; i++) {
 			units[i][0] = new TextureRegion(unitSheet, i * 64, 0, 64, 64);
 			units[i][1] = new TextureRegion(unitSheet, i * 64, 64, 64, 64);
 		}
@@ -54,14 +55,14 @@ public class AssetLibrary extends AssetManager {
 		for (int i = 0; i < 6; i++)
 			buttons[i] = getButton(buttonSheet,0, i * 90, 400);
 
-		for(int i = 6; i < 15; i++)
-			buttons[i] = getButton(buttonSheet,1200, i * 90, 90);
+		for (int i = 6; i < 15; i++)
+			buttons[i] = getButton(buttonSheet,1200, (i - 6) * 90, 90);
 	}
 
 	private TextureRegionDrawable[] getButton(Texture sheet, int x, int y, int width) {
-		final TextureRegion iconUp = new TextureRegion(sheet, x, y, width, 180);
-		final TextureRegion iconHover = new TextureRegion(sheet, x + width, y, width, 180);
-		final TextureRegion iconDown = new TextureRegion(sheet, x + width * 2, y, width, 180);
+		final TextureRegion iconUp = new TextureRegion(sheet, x, y, width, 90);
+		final TextureRegion iconHover = new TextureRegion(sheet, x + width, y, width, 90);
+		final TextureRegion iconDown = new TextureRegion(sheet, x + width * 2, y, width, 90);
 
 		TextureRegionDrawable[] button = new TextureRegionDrawable[3];
 
@@ -70,6 +71,16 @@ public class AssetLibrary extends AssetManager {
 		button[2] = new TextureRegionDrawable(iconDown);
 
 		return button;
+	}
+
+	public ImageButton.ImageButtonStyle getButtonStyle(TextureRegionDrawable[] button) {
+		ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
+
+		style.imageUp = button[0];
+		style.imageOver = button[1];
+		style.imageDown = button[2];
+
+		return style;
 	}
 
 	private void loadAudio() {}
@@ -81,7 +92,7 @@ public class AssetLibrary extends AssetManager {
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 		parameter.incremental = true;
 
-		parameter.size = 64;
+		parameter.size = 96;
 		titleStyle = new Label.LabelStyle(generator.generateFont(parameter), Color.WHITE);
 
 		parameter.size = 48;

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import io.thebitspud.libgdxstrategy.screens.GameScreen;
+import io.thebitspud.libgdxstrategy.screens.PauseScreen;
 import io.thebitspud.libgdxstrategy.screens.TitleScreen;
 import io.thebitspud.libgdxstrategy.tools.AssetLibrary;
 
@@ -11,7 +12,7 @@ public class StrategyGame extends Game {
 	public AssetLibrary assets;
 	public SpriteBatch batch;
 
-	public Screen titleScreen, gameScreen;
+	public Screen titleScreen, gameScreen, pauseScreen;
 	
 	@Override
 	public void create () {
@@ -22,6 +23,7 @@ public class StrategyGame extends Game {
 
 		titleScreen = new TitleScreen(this);
 		gameScreen = new GameScreen(this);
+		pauseScreen = new PauseScreen(this);
 
 		setScreen(titleScreen);
 	}

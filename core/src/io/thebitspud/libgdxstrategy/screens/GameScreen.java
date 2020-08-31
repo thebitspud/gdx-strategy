@@ -7,8 +7,11 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.thebitspud.libgdxstrategy.StrategyGame;
+import io.thebitspud.libgdxstrategy.tools.JInputListener;
 
 public class GameScreen implements Screen {
 	private StrategyGame app;
@@ -28,7 +31,21 @@ public class GameScreen implements Screen {
 	}
 
 	private void initHUD() {
+		Label title = new Label("", app.assets.subTitleStyle);
+		title.setPosition(25, Gdx.graphics.getHeight() - 57);
+		title.setText("350 Oil");
 
+		ImageButton pauseButton = new ImageButton(app.assets.getButtonStyle(app.assets.buttons[14]));
+		pauseButton.addListener(new JInputListener() {
+			@Override
+			public void onClick() {
+				app.setScreen(app.pauseScreen);
+			}
+		});
+		pauseButton.setPosition(Gdx.graphics.getWidth() - 115, Gdx.graphics.getHeight() - 115);
+
+		hud.addActor(title);
+		hud.addActor(pauseButton);
 	}
 
 	@Override
@@ -38,7 +55,7 @@ public class GameScreen implements Screen {
 
 	@Override
 	public void render(float delta) {
-		if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) app.setScreen(app.titleScreen);
+		if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) app.setScreen(app.pauseScreen);
 
 		camera.update();
 		app.batch.setProjectionMatrix(camera.combined);
