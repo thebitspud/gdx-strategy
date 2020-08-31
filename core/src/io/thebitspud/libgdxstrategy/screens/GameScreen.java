@@ -11,21 +11,26 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.thebitspud.libgdxstrategy.StrategyGame;
+import io.thebitspud.libgdxstrategy.World;
 import io.thebitspud.libgdxstrategy.tools.JInputListener;
+import io.thebitspud.libgdxstrategy.tools.MapInput;
 
 public class GameScreen implements Screen {
 	private StrategyGame app;
+	private World world;
 
-	private OrthographicCamera camera;
 	private Stage hud;
+	private MapInput mapInput;
 	private InputMultiplexer multiplexer;
 
 	public GameScreen(StrategyGame app) {
 		this.app = app;
 
-		camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		world = new World(app);
+		final OrthographicCamera camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		hud = new Stage(new ScreenViewport(camera));
-		multiplexer = new InputMultiplexer(hud);
+		mapInput = new MapInput(app, world);
+		multiplexer = new InputMultiplexer(hud, mapInput);
 
 		initHUD();
 	}
@@ -57,18 +62,15 @@ public class GameScreen implements Screen {
 	public void render(float delta) {
 		if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) app.setScreen(app.pauseScreen);
 
-		camera.update();
-		app.batch.setProjectionMatrix(camera.combined);
-
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 		hud.act();
-		// tick game here
+		mapInput.getCameraInput(delta);
+		world.tick(delta);
 		app.batch.begin();
-		// render game here
+		world.render();
 		app.batch.end();
-		// draw hud over game batch
 		hud.draw();
 	}
 
@@ -95,5 +97,6 @@ public class GameScreen implements Screen {
 	@Override
 	public void dispose() {
 		hud.dispose();
+		world.dispose();
 	}
 }

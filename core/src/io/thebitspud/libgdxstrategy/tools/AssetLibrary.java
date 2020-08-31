@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -24,8 +26,7 @@ public class AssetLibrary extends AssetManager {
 	}
 
 	public void loadAll() {
-		loadTextures();
-		loadAudio();
+		loadFiles();
 		generateFonts();
 
 		finishLoading();
@@ -33,10 +34,13 @@ public class AssetLibrary extends AssetManager {
 		assignAudio();
 	}
 
-	private void loadTextures() {
+	private void loadFiles() {
 		this.load("buttons.png", Texture.class);
 		this.load("tiles.png", Texture.class);
 		this.load("units.png", Texture.class);
+
+		setLoader(TiledMap.class, new TmxMapLoader());
+		load("testlevel.tmx", TiledMap.class);
 	}
 
 	private void assignTextures() {
@@ -82,8 +86,6 @@ public class AssetLibrary extends AssetManager {
 
 		return style;
 	}
-
-	private void loadAudio() {}
 
 	private void assignAudio() {}
 
