@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.thebitspud.libgdxstrategy.StrategyGame;
 import io.thebitspud.libgdxstrategy.World;
@@ -17,7 +18,7 @@ import io.thebitspud.libgdxstrategy.map.MapInput;
 
 public class GameScreen implements Screen {
 	private StrategyGame app;
-	private World world;
+	public World world;
 
 	private Stage hud;
 	private MapInput mapInput;
@@ -38,7 +39,8 @@ public class GameScreen implements Screen {
 
 	private void initHUD() {
 		tileInfo = new Label("", app.assets.largeTextStyle);
-		tileInfo.setPosition(25, Gdx.graphics.getHeight() - 57);
+		tileInfo.setAlignment(Align.topLeft);
+		tileInfo.setPosition(25, Gdx.graphics.getHeight() - 25);
 
 		ImageButton pauseButton = new ImageButton(app.assets.getButtonStyle(app.assets.buttons[14]));
 		pauseButton.addListener(new JInputListener() {

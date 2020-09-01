@@ -3,6 +3,7 @@ package io.thebitspud.libgdxstrategy.map;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.math.Vector2;
 import io.thebitspud.libgdxstrategy.StrategyGame;
 import io.thebitspud.libgdxstrategy.World;
 
@@ -54,31 +55,29 @@ public class MapInput implements InputProcessor {
 	}
 
 	public void render() {
-		app.batch.begin();
-		updateHighlightCoords();
+		highlightSelectedTile();
 		displayTileInfo();
 		app.batch.end();
 	}
 
-	public void updateHighlightCoords() {
-		float zoom = world.mapCamera.zoom;
-		int adjustedY = (world.height - selectedTileY - 1);
+	public void highlightSelectedTile() {
+		Vector2 offset = world.getTileOffset(selectedTileX, selectedTileY);
+		float scale = world.tileSize / world.mapCamera.zoom;
+		int index = leftDown ? 1 : 0;
+		if (world.getUnit(selectedTileX, selectedTileY) != null)
+			index += world.getUnit(selectedTileX, selectedTileY).isAlly() ? 2 : 4;
 
-		float cameraOffsetX = selectedTileX * world.tileSize - world.mapCamera.position.x;
-		float cameraOffsetY = adjustedY * world.tileSize - world.mapCamera.position.y;
-
-		float highlightX = cameraOffsetX / zoom + Gdx.graphics.getWidth() / 2f;
-		float highlightY = cameraOffsetY / zoom + Gdx.graphics.getHeight() / 2f;
-		float highlightScale = world.tileSize / zoom;
-
-		app.batch.draw(app.assets.highlights[leftDown ? 1 : 0], highlightX, highlightY, highlightScale, highlightScale);
+		app.batch.draw(app.assets.highlights[index], offset.x, offset.y, scale, scale);
 	}
 
 	private void displayTileInfo() {
-		String coordText = selectedTileX + "," + selectedTileY;
-		String idText = "Tile." + world.getTile(selectedTileX, selectedTileY);
+		String coordText = "[" + selectedTileX + "," + selectedTileY + "]";
+		String idText = "\nTile." + world.getTile(selectedTileX, selectedTileY);
+		String unitText = "";
+		if(world.getUnit(selectedTileX, selectedTileY) != null)
+			unitText = "\n\n" + world.getUnit(selectedTileX, selectedTileY).getUnitInfo();
 
-		app.gameScreen.tileInfo.setText(coordText + "\n" + idText);
+		app.gameScreen.tileInfo.setText(coordText + idText + unitText);
 	}
 
 	@Override

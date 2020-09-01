@@ -8,14 +8,19 @@ import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import io.thebitspud.libgdxstrategy.map.Tile;
+import io.thebitspud.libgdxstrategy.units.*;
+
+import java.util.ArrayList;
 
 public class World {
 	private final StrategyGame app;
 	public TiledMap map;
 	private TiledMapRenderer mapRenderer;
 	public OrthographicCamera mapCamera;
+	private ArrayList<Unit> units;
 
 	public int width, height, tileSize;
 
@@ -23,6 +28,7 @@ public class World {
 		this.app = app;
 
 		mapCamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		units = new ArrayList<>();
 	}
 
 	public void loadMap(String fileName) {
@@ -32,9 +38,40 @@ public class World {
 		tileSize = map.getProperties().get("tilewidth", Integer.class);
 		width = map.getProperties().get("width", Integer.class);
 		height = map.getProperties().get("height", Integer.class);
+
+		initUnits();
+	}
+
+	public void initUnits() {
+		units.clear();
+
+		spawnUnit(7, 2, Unit.ID.HEAVY, true);
+		spawnUnit(4, 3, Unit.ID.RANGED, true);
+		spawnUnit(6, 5, Unit.ID.BASIC, true);
+		spawnUnit(3, 7, Unit.ID.MAGIC, true);
+		spawnUnit(7, 9, Unit.ID.BASIC, true);
+		spawnUnit(8, 10, Unit.ID.HEAVY, true);
+		spawnUnit(5, 11, Unit.ID.RANGED, true);
+		spawnUnit(7, 13, Unit.ID.RANGED, true);
+		spawnUnit(10, 14, Unit.ID.BASIC, true);
+
+		spawnUnit(13, 2, Unit.ID.BASIC, false);
+		spawnUnit(17, 3, Unit.ID.RANGED, false);
+		spawnUnit(14, 5, Unit.ID.BASIC, false);
+		spawnUnit(18, 5, Unit.ID.RANGED, false);
+		spawnUnit(19, 8, Unit.ID.MAGIC, false);
+		spawnUnit(15, 7, Unit.ID.HEAVY, false);
+		spawnUnit(16, 11, Unit.ID.BASIC, false);
+		spawnUnit(19, 12, Unit.ID.RANGED, false);
+		spawnUnit(16, 14, Unit.ID.HEAVY, false);
 	}
 
 	public void tick() {
+		for (int i = 0; i < units.size(); i++) {
+			Unit unit = units.get(i);
+			if (unit.isDead()) units.remove(unit);
+		}
+
 		Vector3 pos = mapCamera.position;
 
 		float xHalf = Gdx.graphics.getWidth() * mapCamera.zoom / 2f;
@@ -48,10 +85,37 @@ public class World {
 		mapCamera.update();
 	}
 
+	public void render() {
+		mapRenderer.setView(mapCamera);
+		mapRenderer.render();
+
+		app.batch.begin();
+		for(Unit unit: units) unit.updateScreenPosition();
+	}
+
 	public void clampMap() {
 		float maxZoom = Math.min((float) width * tileSize / Gdx.graphics.getWidth(),
 				(float) height * tileSize / Gdx.graphics.getHeight());
 		mapCamera.zoom = (float) MathUtils.clamp(mapCamera.zoom, 0.5, maxZoom);
+	}
+
+	public void spawnUnit(int x, int y, Unit.ID id, boolean ally) {
+		if(getUnit(x, y) != null) return;
+
+		switch (id) {
+			case BASIC:
+				units.add(new BasicUnit(x, y, ally, app));
+				break;
+			case RANGED:
+				units.add(new RangedUnit(x, y, ally, app));
+				break;
+			case MAGIC:
+				units.add(new MagicUnit(x, y, ally, app));
+				break;
+			case HEAVY:
+				units.add(new HeavyUnit(x, y, ally, app));
+				break;
+		}
 	}
 
 	public int getTileID(int x, int y) {
@@ -73,9 +137,24 @@ public class World {
 		return Tile.VOID;
 	}
 
-	public void render() {
-		mapRenderer.setView(mapCamera);
-		mapRenderer.render();
+	public Unit getUnit(int x, int y) {
+		for(Unit unit: units)
+			if(unit.getCellX() == x && unit.getCellY() == y)
+				return unit;
+
+		return null;
+	}
+
+	public Vector2 getTileOffset(int x, int y) {
+		int adjustedY = (height - y - 1);
+
+		float cameraOffsetX = x * tileSize - mapCamera.position.x;
+		float cameraOffsetY = adjustedY * tileSize - mapCamera.position.y;
+
+		float xOffset = cameraOffsetX / mapCamera.zoom + Gdx.graphics.getWidth() / 2f;
+		float yOffset = cameraOffsetY / mapCamera.zoom + Gdx.graphics.getHeight() / 2f;
+
+		return new Vector2(xOffset, yOffset);
 	}
 
 	public void dispose() {
