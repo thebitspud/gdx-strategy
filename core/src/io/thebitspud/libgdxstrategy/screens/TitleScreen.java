@@ -29,7 +29,7 @@ public class TitleScreen implements Screen {
 	private void initStage() {
 		final int midX = Gdx.graphics.getWidth() / 2;
 
-		Label title = new Label("Strategy Game", app.assets.titleStyle);
+		Label title = new Label("GDX Strategy", app.assets.titleStyle);
 		title.setPosition(midX - (title.getPrefWidth() / 2), Gdx.graphics.getHeight() * 0.75f);
 
 		ImageButton playButton = new ImageButton(app.assets.getButtonStyle(app.assets.buttons[0]));

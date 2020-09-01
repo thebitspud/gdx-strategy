@@ -48,16 +48,18 @@ public class World {
 		mapCamera.update();
 	}
 
-	public void clampMapZoom() {
+	public void clampMap() {
 		float maxZoom = Math.min((float) width * tileSize / Gdx.graphics.getWidth(),
 				(float) height * tileSize / Gdx.graphics.getHeight());
 		mapCamera.zoom = (float) MathUtils.clamp(mapCamera.zoom, 0.5, maxZoom);
 	}
 
 	public int getTileID(int x, int y) {
-		int adjY = height - y - 1;
-		if (adjY < 0) adjY = 0;
-		TiledMapTile tile = ((TiledMapTileLayer) map.getLayers().get(0)).getCell(x, adjY).getTile();
+		int adjustedY = height - y - 1;
+		x = MathUtils.clamp(x, 0, width - 1);
+		adjustedY = MathUtils.clamp(adjustedY, 0, height - 1);
+
+		TiledMapTile tile = ((TiledMapTileLayer) map.getLayers().get(0)).getCell(x, adjustedY).getTile();
 		if(tile != null) return tile.getId();
 
 		return 0;

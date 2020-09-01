@@ -3,7 +3,6 @@ package io.thebitspud.libgdxstrategy.map;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import io.thebitspud.libgdxstrategy.StrategyGame;
 import io.thebitspud.libgdxstrategy.World;
 
@@ -12,7 +11,7 @@ public class MapInput implements InputProcessor {
 	private World world;
 	private boolean[] keyPressed;
 	private boolean leftDown, rightDown;
-	private int highlightX, highlightY, mouseX, mouseY;
+	private int selectedTileX, selectedTileY;
 
 	public MapInput(StrategyGame app, World world) {
 		this.app = app;
@@ -21,7 +20,12 @@ public class MapInput implements InputProcessor {
 		keyPressed = new boolean[256];
 	}
 
-	public void getCameraInput(float delta) {
+	public void tick(float delta) {
+		getCameraInput(delta);
+		updateFocusedTile();
+	}
+
+	private void getCameraInput(float delta) {
 		int xVel = 0, yVel = 0;
 
 		if (keyPressed[Input.Keys.W] || keyPressed[Input.Keys.UP]) yVel += 500;
@@ -29,30 +33,64 @@ public class MapInput implements InputProcessor {
 		if (keyPressed[Input.Keys.S] || keyPressed[Input.Keys.DOWN]) yVel -= 500;
 		if (keyPressed[Input.Keys.D] || keyPressed[Input.Keys.RIGHT]) xVel += 500;
 
-		if (keyPressed[Input.Keys.Q]) {
-			world.mapCamera.zoom *= 1.01;
-			world.clampMapZoom();
-		}
-
-		if (keyPressed[Input.Keys.E]) {
-			world.mapCamera.zoom *= 0.99;
-			world.clampMapZoom();
-		}
+		if (keyPressed[Input.Keys.Q]) world.mapCamera.zoom *= 1.01;
+		if (keyPressed[Input.Keys.E]) world.mapCamera.zoom *= 0.99;
 
 		world.mapCamera.position.x += xVel * delta * world.mapCamera.zoom;
 		world.mapCamera.position.y += yVel * delta * world.mapCamera.zoom;
+
+		world.clampMap();
+	}
+
+	private void updateFocusedTile() {
+		float screenOffsetX = world.mapCamera.zoom * (Gdx.input.getX() - Gdx.graphics.getWidth() / 2f);
+		float screenOffsetY = world.mapCamera.zoom * (Gdx.input.getY() - Gdx.graphics.getHeight() / 2f);
+
+		float offsetX = screenOffsetX + world.mapCamera.position.x;
+		float offsetY = screenOffsetY - world.mapCamera.position.y + (world.height * world.tileSize);
+
+		selectedTileX = (int) (offsetX / world.tileSize);
+		selectedTileY = (int) (offsetY / world.tileSize);
+	}
+
+	public void render() {
+		app.batch.begin();
+		updateHighlightCoords();
+		displayTileInfo();
+		app.batch.end();
+	}
+
+	public void updateHighlightCoords() {
+		float zoom = world.mapCamera.zoom;
+		int adjustedY = (world.height - selectedTileY - 1);
+
+		float cameraOffsetX = selectedTileX * world.tileSize - world.mapCamera.position.x;
+		float cameraOffsetY = adjustedY * world.tileSize - world.mapCamera.position.y;
+
+		float highlightX = cameraOffsetX / zoom + Gdx.graphics.getWidth() / 2f;
+		float highlightY = cameraOffsetY / zoom + Gdx.graphics.getHeight() / 2f;
+		float highlightScale = world.tileSize / zoom;
+
+		app.batch.draw(app.assets.highlights[leftDown ? 1 : 0], highlightX, highlightY, highlightScale, highlightScale);
+	}
+
+	private void displayTileInfo() {
+		String coordText = selectedTileX + "," + selectedTileY;
+		String idText = "Tile." + world.getTile(selectedTileX, selectedTileY);
+
+		app.gameScreen.tileInfo.setText(coordText + "\n" + idText);
 	}
 
 	@Override
 	public boolean keyDown(int keycode) {
 		keyPressed[keycode] = true;
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean keyUp(int keycode) {
 		keyPressed[keycode] = false;
-		return false;
+		return true;
 	}
 
 	@Override
@@ -65,7 +103,7 @@ public class MapInput implements InputProcessor {
 		if(button == Input.Buttons.LEFT) leftDown = true;
 		if(button == Input.Buttons.RIGHT) rightDown = true;
 
-		return false;
+		return true;
 	}
 
 	@Override
@@ -73,7 +111,7 @@ public class MapInput implements InputProcessor {
 		if(button == Input.Buttons.LEFT) leftDown = false;
 		if(button == Input.Buttons.RIGHT) rightDown = false;
 
-		return false;
+		return true;
 	}
 
 	@Override
@@ -82,53 +120,18 @@ public class MapInput implements InputProcessor {
 		float y = Gdx.input.getDeltaY() * world.mapCamera.zoom;
 
 		world.mapCamera.translate(-x,y);
-		return false;
+		return true;
 	}
-
-	// tbh I don't get what the point of using an inputProcessor
-	// is when Gdx.input can do the same things but better
 
 	@Override
 	public boolean mouseMoved(int screenX, int screenY) {
 		return false;
 	}
 
-	public void updateFocusedTile() {
-		float screenOffsetX = world.mapCamera.zoom * (Gdx.input.getX() - Gdx.graphics.getWidth() / 2f);
-		float screenOffsetY = world.mapCamera.zoom * (Gdx.input.getY() - Gdx.graphics.getHeight() / 2f);
-		float xOffset = screenOffsetX + world.mapCamera.position.x;
-		float yOffset = screenOffsetY - world.mapCamera.position.y + (world.height * world.tileSize);
-
-		int x = (int) (xOffset / 64), y = (int) (yOffset / 64);
-		if(x < 0) x = 0;
-		highlightTile(x, y);
-
-		String coordText = x + "," + y;
-		String idText = "Tile." + world.getTile(x, y);
-
-		app.gameScreen.clickedTile.setText(coordText + "\n" + idText);
-	}
-
-	public void highlightTile(int x, int y) {
-		int adjY = world.height - y - 1;
-
-		TiledMapTileLayer layer = (TiledMapTileLayer) world.map.getLayers().get(1);
-
-		if (layer.getCell(highlightX, highlightY) != null)
-			layer.getCell(highlightX, highlightY).setTile(null);
-
-		TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
-		int tileID = leftDown ? 10 : 9;
-		cell.setTile(world.map.getTileSets().getTile(tileID));
-		layer.setCell(x, adjY, cell);
-
-		highlightX = x; highlightY = adjY;
-	}
-
 	@Override
 	public boolean scrolled(int amount) {
 		world.mapCamera.zoom *= 1 + amount * 0.05f;
-		world.clampMapZoom();
-		return false;
+		world.clampMap();
+		return true;
 	}
 }

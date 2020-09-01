@@ -9,14 +9,16 @@ import io.thebitspud.libgdxstrategy.tools.AssetLibrary;
 
 public class StrategyGame extends Game {
 	public AssetLibrary assets;
+	public SpriteBatch batch;
 
 	public TitleScreen titleScreen;
 	public GameScreen gameScreen;
 	public PauseScreen pauseScreen;
-	
+
 	@Override
 	public void create () {
 		assets = new AssetLibrary();
+		batch = new SpriteBatch();
 
 		assets.loadAll();
 
@@ -35,5 +37,6 @@ public class StrategyGame extends Game {
 	@Override
 	public void dispose () {
 		assets.dispose();
+		batch.dispose();
 	}
 }

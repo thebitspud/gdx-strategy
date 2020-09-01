@@ -22,7 +22,7 @@ public class GameScreen implements Screen {
 	private Stage hud;
 	private MapInput mapInput;
 	private InputMultiplexer multiplexer;
-	public Label clickedTile;
+	public Label tileInfo;
 
 	public GameScreen(StrategyGame app) {
 		this.app = app;
@@ -37,8 +37,8 @@ public class GameScreen implements Screen {
 	}
 
 	private void initHUD() {
-		clickedTile = new Label("", app.assets.largeTextStyle);
-		clickedTile.setPosition(25, Gdx.graphics.getHeight() - 57);
+		tileInfo = new Label("", app.assets.largeTextStyle);
+		tileInfo.setPosition(25, Gdx.graphics.getHeight() - 57);
 
 		ImageButton pauseButton = new ImageButton(app.assets.getButtonStyle(app.assets.buttons[14]));
 		pauseButton.addListener(new JInputListener() {
@@ -49,7 +49,7 @@ public class GameScreen implements Screen {
 		});
 		pauseButton.setPosition(Gdx.graphics.getWidth() - 115, Gdx.graphics.getHeight() - 115);
 
-		hud.addActor(clickedTile);
+		hud.addActor(tileInfo);
 		hud.addActor(pauseButton);
 	}
 
@@ -66,10 +66,11 @@ public class GameScreen implements Screen {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-		mapInput.getCameraInput(delta);
-		mapInput.updateFocusedTile();
 		world.tick();
+		mapInput.tick(delta);
+
 		world.render();
+		mapInput.render();
 
 		hud.act();
 		hud.draw();
