@@ -13,7 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 public class AssetLibrary extends AssetManager {
-	private TextureRegion[] tiles;
+	public TextureRegion[] highlights;
 	private TextureRegion[][] units;
 	public TextureRegionDrawable[][] buttons;
 
@@ -21,7 +21,7 @@ public class AssetLibrary extends AssetManager {
 
 	public AssetLibrary() {
 		buttons = new TextureRegionDrawable[15][3];
-		tiles = new TextureRegion[8];
+		highlights = new TextureRegion[2];
 		units = new TextureRegion[4][2];
 	}
 
@@ -36,6 +36,7 @@ public class AssetLibrary extends AssetManager {
 
 	private void loadFiles() {
 		this.load("buttons.png", Texture.class);
+		this.load("highlights.png", Texture.class);
 		this.load("tiles.png", Texture.class);
 		this.load("units.png", Texture.class);
 
@@ -44,12 +45,9 @@ public class AssetLibrary extends AssetManager {
 	}
 
 	private void assignTextures() {
-		final Texture tileSheet = this.get("tiles.png", Texture.class);
 		final Texture unitSheet = this.get("units.png", Texture.class);
 		final Texture buttonSheet = this.get("buttons.png", Texture.class);
-
-		for (int i = 0; i < 8; i++)
-			tiles[i] = new TextureRegion(tileSheet,i * 64, 0, 64, 64);
+		final Texture highlightSheet = this.get("highlights.png", Texture.class);
 
 		for (int i = 0; i < 4; i++) {
 			units[i][0] = new TextureRegion(unitSheet, i * 64, 0, 64, 64);
@@ -61,6 +59,9 @@ public class AssetLibrary extends AssetManager {
 
 		for (int i = 6; i < 15; i++)
 			buttons[i] = getButton(buttonSheet,1200, (i - 6) * 90, 90);
+
+		for (int i = 0; i < 2; i++)
+			highlights[i] = new TextureRegion(highlightSheet,i * 64, 0, 64, 64);
 	}
 
 	private TextureRegionDrawable[] getButton(Texture sheet, int x, int y, int width) {

@@ -13,7 +13,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.thebitspud.libgdxstrategy.StrategyGame;
 import io.thebitspud.libgdxstrategy.World;
 import io.thebitspud.libgdxstrategy.tools.JInputListener;
-import io.thebitspud.libgdxstrategy.tools.MapInput;
+import io.thebitspud.libgdxstrategy.map.MapInput;
 
 public class GameScreen implements Screen {
 	private StrategyGame app;
@@ -22,6 +22,7 @@ public class GameScreen implements Screen {
 	private Stage hud;
 	private MapInput mapInput;
 	private InputMultiplexer multiplexer;
+	public Label clickedTile;
 
 	public GameScreen(StrategyGame app) {
 		this.app = app;
@@ -36,9 +37,8 @@ public class GameScreen implements Screen {
 	}
 
 	private void initHUD() {
-		Label title = new Label("", app.assets.subTitleStyle);
-		title.setPosition(25, Gdx.graphics.getHeight() - 57);
-		title.setText("350 Oil");
+		clickedTile = new Label("", app.assets.largeTextStyle);
+		clickedTile.setPosition(25, Gdx.graphics.getHeight() - 57);
 
 		ImageButton pauseButton = new ImageButton(app.assets.getButtonStyle(app.assets.buttons[14]));
 		pauseButton.addListener(new JInputListener() {
@@ -49,13 +49,14 @@ public class GameScreen implements Screen {
 		});
 		pauseButton.setPosition(Gdx.graphics.getWidth() - 115, Gdx.graphics.getHeight() - 115);
 
-		hud.addActor(title);
+		hud.addActor(clickedTile);
 		hud.addActor(pauseButton);
 	}
 
 	@Override
 	public void show() {
 		Gdx.input.setInputProcessor(multiplexer);
+		world.loadMap("testlevel.tmx");
 	}
 
 	@Override
@@ -65,12 +66,12 @@ public class GameScreen implements Screen {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-		hud.act();
 		mapInput.getCameraInput(delta);
-		world.tick(delta);
-		app.batch.begin();
+		mapInput.updateFocusedTile();
+		world.tick();
 		world.render();
-		app.batch.end();
+
+		hud.act();
 		hud.draw();
 	}
 

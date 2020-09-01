@@ -1,8 +1,9 @@
-package io.thebitspud.libgdxstrategy.tools;
+package io.thebitspud.libgdxstrategy.map;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import io.thebitspud.libgdxstrategy.StrategyGame;
 import io.thebitspud.libgdxstrategy.World;
 
@@ -10,6 +11,8 @@ public class MapInput implements InputProcessor {
 	private StrategyGame app;
 	private World world;
 	private boolean[] keyPressed;
+	private boolean leftDown, rightDown;
+	private int highlightX, highlightY, mouseX, mouseY;
 
 	public MapInput(StrategyGame app, World world) {
 		this.app = app;
@@ -52,11 +55,17 @@ public class MapInput implements InputProcessor {
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+		if(button == Input.Buttons.LEFT) leftDown = true;
+		if(button == Input.Buttons.RIGHT) rightDown = true;
+
 		return false;
 	}
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+		if(button == Input.Buttons.LEFT) leftDown = false;
+		if(button == Input.Buttons.RIGHT) rightDown = false;
+
 		return false;
 	}
 
@@ -69,9 +78,44 @@ public class MapInput implements InputProcessor {
 		return false;
 	}
 
+	// tbh I don't get what the point of using an inputProcessor
+	// is when Gdx.input can do the same things but better
+
 	@Override
 	public boolean mouseMoved(int screenX, int screenY) {
 		return false;
+	}
+
+	public void updateFocusedTile() {
+		float screenOffsetX = world.mapCamera.zoom * (Gdx.input.getX() - Gdx.graphics.getWidth() / 2f);
+		float screenOffsetY = world.mapCamera.zoom * (Gdx.input.getY() - Gdx.graphics.getHeight() / 2f);
+		float xOffset = screenOffsetX + world.mapCamera.position.x;
+		float yOffset = screenOffsetY - world.mapCamera.position.y + (world.height * world.tileSize);
+
+		int x = (int) (xOffset / 64), y = (int) (yOffset / 64);
+		if(x < 0) x = 0;
+		highlightTile(x, y);
+
+		String coordText = x + "," + y;
+		String idText = "Tile." + world.getTile(x, y);
+
+		app.gameScreen.clickedTile.setText(coordText + "\n" + idText);
+	}
+
+	public void highlightTile(int x, int y) {
+		int adjY = world.height - y - 1;
+
+		TiledMapTileLayer layer = (TiledMapTileLayer) world.map.getLayers().get(1);
+
+		if (layer.getCell(highlightX, highlightY) != null)
+			layer.getCell(highlightX, highlightY).setTile(null);
+
+		TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
+		int tileID = leftDown ? 10 : 9;
+		cell.setTile(world.map.getTileSets().getTile(tileID));
+		layer.setCell(x, adjY, cell);
+
+		highlightX = x; highlightY = adjY;
 	}
 
 	@Override
