@@ -29,8 +29,15 @@ public class MapInput implements InputProcessor {
 		if (keyPressed[Input.Keys.S] || keyPressed[Input.Keys.DOWN]) yVel -= 500;
 		if (keyPressed[Input.Keys.D] || keyPressed[Input.Keys.RIGHT]) xVel += 500;
 
-		if (keyPressed[Input.Keys.Q]) world.mapCamera.zoom *= 1.01;
-		if (keyPressed[Input.Keys.E]) world.mapCamera.zoom *= 0.99;
+		if (keyPressed[Input.Keys.Q]) {
+			world.mapCamera.zoom *= 1.01;
+			world.clampMapZoom();
+		}
+
+		if (keyPressed[Input.Keys.E]) {
+			world.mapCamera.zoom *= 0.99;
+			world.clampMapZoom();
+		}
 
 		world.mapCamera.position.x += xVel * delta * world.mapCamera.zoom;
 		world.mapCamera.position.y += yVel * delta * world.mapCamera.zoom;
@@ -121,6 +128,7 @@ public class MapInput implements InputProcessor {
 	@Override
 	public boolean scrolled(int amount) {
 		world.mapCamera.zoom *= 1 + amount * 0.05f;
+		world.clampMapZoom();
 		return false;
 	}
 }

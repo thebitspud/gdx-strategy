@@ -37,10 +37,6 @@ public class World {
 	public void tick() {
 		Vector3 pos = mapCamera.position;
 
-		float maxZoom = Math.min((float) width * tileSize / Gdx.graphics.getWidth(),
-				(float) height * tileSize / Gdx.graphics.getHeight());
-		mapCamera.zoom = (float) MathUtils.clamp(mapCamera.zoom, 0.5, maxZoom);
-
 		float xHalf = Gdx.graphics.getWidth() * mapCamera.zoom / 2f;
 		float yHalf = Gdx.graphics.getHeight() * mapCamera.zoom / 2f;
 		float xLim = width * tileSize - xHalf;
@@ -50,6 +46,12 @@ public class World {
 		pos.y = MathUtils.clamp(pos.y, yHalf, yLim);
 
 		mapCamera.update();
+	}
+
+	public void clampMapZoom() {
+		float maxZoom = Math.min((float) width * tileSize / Gdx.graphics.getWidth(),
+				(float) height * tileSize / Gdx.graphics.getHeight());
+		mapCamera.zoom = (float) MathUtils.clamp(mapCamera.zoom, 0.5, maxZoom);
 	}
 
 	public int getTileID(int x, int y) {
