@@ -3,6 +3,7 @@ package io.thebitspud.libgdxstrategy.map;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.math.Vector2;
 import io.thebitspud.libgdxstrategy.StrategyGame;
 import io.thebitspud.libgdxstrategy.World;
@@ -79,14 +80,15 @@ public class MapInput implements InputProcessor {
 	}
 
 	private void displayTileInfo() {
-		String coordText = "[" + hoveredTileX + "," + hoveredTileY + "]";
-		String idText = "\nTile." + world.getTile(hoveredTileX, hoveredTileY);
-		String unitText = "";
-
+		Tile tile =  world.getTile(hoveredTileX, hoveredTileY);
 		Unit unit = world.getUnit(hoveredTileX, hoveredTileY);
-		if (unit != null) unitText = "\n\n" + unit.getUnitInfo();
 
-		app.gameScreen.tileInfo.setText(coordText + idText + unitText);
+		String coordText = "[" + hoveredTileX + "," + hoveredTileY + "]";
+		String idText = "\nTile." + tile;
+		String propertiesText = "\nSolid: " + tile.isSolid();
+		String unitText = (unit == null) ? "" : "\n\n" + unit.getUnitInfo();
+
+		app.gameScreen.tileInfo.setText(coordText + idText + propertiesText + unitText);
 	}
 
 	@Override

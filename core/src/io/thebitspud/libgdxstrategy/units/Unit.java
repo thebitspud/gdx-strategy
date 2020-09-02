@@ -25,9 +25,6 @@ public class Unit extends Sprite {
 		world = app.gameScreen.world;
 		maxHealth = health;
 		active = true;
-		movement = 5;
-		attack = 1;
-		range = 1;
 
 		if(!ally) flip(true, false);
 	}
@@ -135,7 +132,10 @@ public class Unit extends Sprite {
 	}
 
 	public String getUnitInfo() {
-		return "Unit." + id + "\n" + "HP: " + health + "/" + maxHealth;
+		String healthText = "\nHP: " + health + "/" + maxHealth;
+		String statsText = "\nMovement: " + movement + "\nAttack: " + attack + "\nRange: " + range;
+		String userText = "\n\nUser." + (ally ? "PLAYER" : "AI_1") + "\nAlly: " + ally;
+		return "Unit." + id + healthText + statsText + userText;
 	}
 
 	public int getTileX() {
