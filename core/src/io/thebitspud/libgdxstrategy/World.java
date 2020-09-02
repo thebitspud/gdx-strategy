@@ -22,7 +22,7 @@ public class World {
 	public OrthographicCamera mapCamera;
 	private ArrayList<Unit> units;
 
-	public int width, height, tileSize;
+	public int width, height, tileSize, gameTurn, maxTurns;
 
 	public World(StrategyGame app) {
 		this.app = app;
@@ -39,6 +39,8 @@ public class World {
 		width = map.getProperties().get("width", Integer.class);
 		height = map.getProperties().get("height", Integer.class);
 
+		gameTurn = 0;
+		maxTurns = -1;
 		initUnits();
 	}
 
@@ -64,6 +66,8 @@ public class World {
 		spawnUnit(16, 11, Unit.ID.BASIC, false);
 		spawnUnit(19, 12, Unit.ID.RANGED, false);
 		spawnUnit(16, 14, Unit.ID.HEAVY, false);
+
+		nextTurn();
 	}
 
 	public void tick() {
@@ -90,6 +94,7 @@ public class World {
 		mapRenderer.render();
 
 		app.batch.begin();
+
 		for(Unit unit: units) unit.updateScreenPosition();
 	}
 
@@ -118,6 +123,13 @@ public class World {
 		}
 	}
 
+	public void nextTurn() {
+		for(Unit unit: units) unit.nextTurn();
+		gameTurn += 1;
+		String turnText = "Turn " + gameTurn + ((maxTurns > 0) ? "/" + maxTurns : "");
+		app.gameScreen.turnInfo.setText(turnText);
+	}
+
 	public int getTileID(int x, int y) {
 		int adjustedY = height - y - 1;
 		x = MathUtils.clamp(x, 0, width - 1);
@@ -139,7 +151,7 @@ public class World {
 
 	public Unit getUnit(int x, int y) {
 		for(Unit unit: units)
-			if(unit.getCellX() == x && unit.getCellY() == y)
+			if(unit.getTileX() == x && unit.getTileY() == y)
 				return unit;
 
 		return null;

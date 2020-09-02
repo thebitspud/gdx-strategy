@@ -46,6 +46,7 @@ public class PauseScreen implements Screen {
 			@Override
 			public void onClick() {
 				app.setScreen(app.gameScreen);
+				app.gameScreen.world.loadMap("testlevel.tmx");
 			}
 		});
 		restartButton.setPosition(midX - 200, Gdx.graphics.getHeight() * 0.35f);

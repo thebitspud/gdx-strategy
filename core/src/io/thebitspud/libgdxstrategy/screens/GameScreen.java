@@ -23,7 +23,7 @@ public class GameScreen implements Screen {
 	private Stage hud;
 	private MapInput mapInput;
 	private InputMultiplexer multiplexer;
-	public Label tileInfo;
+	public Label tileInfo, turnInfo;
 
 	public GameScreen(StrategyGame app) {
 		this.app = app;
@@ -42,6 +42,10 @@ public class GameScreen implements Screen {
 		tileInfo.setAlignment(Align.topLeft);
 		tileInfo.setPosition(25, Gdx.graphics.getHeight() - 25);
 
+		turnInfo = new Label("", app.assets.largeTextStyle);
+		turnInfo.setAlignment(Align.bottomLeft);
+		turnInfo.setPosition(25,  25);
+
 		ImageButton pauseButton = new ImageButton(app.assets.getButtonStyle(app.assets.buttons[14]));
 		pauseButton.addListener(new JInputListener() {
 			@Override
@@ -51,8 +55,19 @@ public class GameScreen implements Screen {
 		});
 		pauseButton.setPosition(Gdx.graphics.getWidth() - 115, Gdx.graphics.getHeight() - 115);
 
+		ImageButton endTurnButton = new ImageButton(app.assets.getButtonStyle(app.assets.buttons[11]));
+		endTurnButton.addListener(new JInputListener() {
+			@Override
+			public void onClick() {
+				world.nextTurn();
+			}
+		});
+		endTurnButton.setPosition(Gdx.graphics.getWidth() - 115, 25);
+
 		hud.addActor(tileInfo);
+		hud.addActor(turnInfo);
 		hud.addActor(pauseButton);
+		hud.addActor(endTurnButton);
 	}
 
 	@Override

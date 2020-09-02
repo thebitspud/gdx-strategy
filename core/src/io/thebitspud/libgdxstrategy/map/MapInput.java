@@ -6,13 +6,15 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
 import io.thebitspud.libgdxstrategy.StrategyGame;
 import io.thebitspud.libgdxstrategy.World;
+import io.thebitspud.libgdxstrategy.units.Unit;
 
 public class MapInput implements InputProcessor {
-	private StrategyGame app;
-	private World world;
+	private final StrategyGame app;
+	private final World world;
 	private boolean[] keyPressed;
 	private boolean leftDown, rightDown;
-	private int selectedTileX, selectedTileY;
+	private int hoveredTileX, hoveredTileY, selectedTileX, selectedTileY;
+	private Unit selectedUnit;
 
 	public MapInput(StrategyGame app, World world) {
 		this.app = app;
@@ -50,32 +52,39 @@ public class MapInput implements InputProcessor {
 		float offsetX = screenOffsetX + world.mapCamera.position.x;
 		float offsetY = screenOffsetY - world.mapCamera.position.y + (world.height * world.tileSize);
 
-		selectedTileX = (int) (offsetX / world.tileSize);
-		selectedTileY = (int) (offsetY / world.tileSize);
+		hoveredTileX = (int) (offsetX / world.tileSize);
+		hoveredTileY = (int) (offsetY / world.tileSize);
 	}
 
 	public void render() {
-		highlightSelectedTile();
+		highlightTiles();
 		displayTileInfo();
 		app.batch.end();
 	}
 
-	public void highlightSelectedTile() {
-		Vector2 offset = world.getTileOffset(selectedTileX, selectedTileY);
+	public void highlightTiles() {
+		Vector2 offset = world.getTileOffset(hoveredTileX, hoveredTileY);
 		float scale = world.tileSize / world.mapCamera.zoom;
 		int index = leftDown ? 1 : 0;
-		if (world.getUnit(selectedTileX, selectedTileY) != null)
-			index += world.getUnit(selectedTileX, selectedTileY).isAlly() ? 2 : 4;
+
+		if (selectedUnit != null) {
+			selectedUnit.drawAvailableMoves();
+			app.batch.draw(app.assets.highlights[4], selectedUnit.getX(), selectedUnit.getY(), scale, scale);
+		}
+
+		Unit unit = world.getUnit(hoveredTileX, hoveredTileY);
+		if (unit != null && unit.isAlly()) index += unit.hasAvailableAction() ? 2 : 0;
 
 		app.batch.draw(app.assets.highlights[index], offset.x, offset.y, scale, scale);
 	}
 
 	private void displayTileInfo() {
-		String coordText = "[" + selectedTileX + "," + selectedTileY + "]";
-		String idText = "\nTile." + world.getTile(selectedTileX, selectedTileY);
+		String coordText = "[" + hoveredTileX + "," + hoveredTileY + "]";
+		String idText = "\nTile." + world.getTile(hoveredTileX, hoveredTileY);
 		String unitText = "";
-		if(world.getUnit(selectedTileX, selectedTileY) != null)
-			unitText = "\n\n" + world.getUnit(selectedTileX, selectedTileY).getUnitInfo();
+
+		Unit unit = world.getUnit(hoveredTileX, hoveredTileY);
+		if (unit != null) unitText = "\n\n" + unit.getUnitInfo();
 
 		app.gameScreen.tileInfo.setText(coordText + idText + unitText);
 	}
@@ -99,26 +108,45 @@ public class MapInput implements InputProcessor {
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		if(button == Input.Buttons.LEFT) leftDown = true;
-		if(button == Input.Buttons.RIGHT) rightDown = true;
+		if (button == Input.Buttons.LEFT) {
+			leftDown = true;
+
+			if (selectedUnit != null) {
+				selectedUnit.move(hoveredTileX, hoveredTileY);
+				selectedUnit = null;
+			}
+
+			Unit hoveredUnit = world.getUnit(hoveredTileX, hoveredTileY);
+
+			if (hoveredUnit != null && hoveredUnit.isAlly() && hoveredUnit.hasAvailableAction()) {
+				selectedUnit = hoveredUnit;
+				selectedTileX = hoveredTileX;
+				selectedTileY = hoveredTileY;
+			}
+		}
+
+		if (button == Input.Buttons.RIGHT) rightDown = true;
 
 		return true;
 	}
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		if(button == Input.Buttons.LEFT) leftDown = false;
-		if(button == Input.Buttons.RIGHT) rightDown = false;
+		if (button == Input.Buttons.LEFT) leftDown = false;
+		if (button == Input.Buttons.RIGHT) rightDown = false;
 
 		return true;
 	}
 
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		float x = Gdx.input.getDeltaX() * world.mapCamera.zoom;
-		float y = Gdx.input.getDeltaY() * world.mapCamera.zoom;
+		if (rightDown) {
+			float x = Gdx.input.getDeltaX() * world.mapCamera.zoom;
+			float y = Gdx.input.getDeltaY() * world.mapCamera.zoom;
 
-		world.mapCamera.translate(-x,y);
+			world.mapCamera.translate(-x,y);
+		}
+
 		return true;
 	}
 

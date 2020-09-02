@@ -6,8 +6,8 @@ public class RangedUnit extends Unit {
 	public RangedUnit(int x, int y, boolean ally, StrategyGame app) {
 		super(x, y, ID.RANGED, 10, ally, app);
 
-		movement = 5;
+		movement = 3;
 		attack = 2;
-		range = 5;
+		range = 3;
 	}
 }
