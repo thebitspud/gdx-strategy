@@ -6,7 +6,7 @@ public class BasicUnit extends Unit {
 	public BasicUnit(int x, int y, boolean ally, StrategyGame app) {
 		super(x, y, ID.BASIC, 10, ally, app);
 
-		movement = 4;
+		movement = 3;
 		attack = 3;
 		range = 1;
 	}

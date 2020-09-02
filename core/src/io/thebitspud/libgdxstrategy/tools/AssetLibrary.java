@@ -58,7 +58,7 @@ public class AssetLibrary extends AssetManager {
 			buttons[i] = getButton(buttonSheet, 0, i * 90, 400);
 
 		for ( int i = 0; i < 8; i++)
-			highlights[i] = new TextureRegion(highlightSheet, (int) (i * 65.5f), 0, 64, 64);
+			highlights[i] = new TextureRegion(highlightSheet, i * 66, 0, 64, 64);
 
 		for (int i = 6; i < 15; i++)
 			buttons[i] = getButton(buttonSheet,1200, (i - 6) * 90, 90);

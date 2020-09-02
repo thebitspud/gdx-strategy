@@ -1,7 +1,6 @@
 package io.thebitspud.libgdxstrategy.units;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import io.thebitspud.libgdxstrategy.StrategyGame;
 import io.thebitspud.libgdxstrategy.World;
@@ -47,22 +46,47 @@ public class Unit extends Sprite {
 	}
 
 	public void move(int x, int y) {
-		if (!canMoveTo(x, y)) return;
+		if (!canMoveToTile(x, y)) return;
 
 		this.tileX = x;
 		this.tileY = y;
 
 		canMove = false;
-		canAttack = false;
+		attackAvailable();
 	}
 
-	public boolean canMoveTo(int x, int y) {
+	public boolean canMoveToTile(int x, int y) {
 		if (!canMove) return false;
 		if (x < 0 || x > world.width - 1) return false;
 		if (y < 0 || y > world.height - 1) return false;
+		if (Math.abs(tileX - x) + Math.abs(tileY - y) > movement) return false;
 		if (world.getUnit(x, y) != null) return false;
-		if (world.getTile(x, y).isSolid()) return false;
-		return Math.abs(tileX - x) + Math.abs(tileY - y) <= movement;
+		return !world.getTile(x, y).isSolid();
+	}
+
+	public void attack(Unit enemy) {
+		if (!canAttackEnemy(enemy)) return;
+
+		enemy.adjustHealth(-attack);
+		canAttack = false;
+		canMove = false;
+	}
+
+	public boolean attackAvailable() {
+		for (int x = -range; x < range + 1; x++)
+			for (int y = -range; y < range + 1; y++)
+				if (canAttackEnemy(world.getUnit(tileX + x, tileY + y)))
+					return true;
+		canAttack = false;
+		return false;
+	}
+
+	public boolean canAttackEnemy(Unit enemy) {
+		if (!canAttack) return false;
+		if (enemy == null) return false;
+		if (enemy.isDead()) return false;
+		if (enemy.isAlly() == ally) return false;
+		return Math.abs(tileX - enemy.getTileX()) + Math.abs(tileY - enemy.getTileY()) <= range;
 	}
 
 	public void updateScreenPosition() {
@@ -72,23 +96,32 @@ public class Unit extends Sprite {
 		float scale = world.tileSize / world.mapCamera.zoom;
 		setSize(scale, scale);
 
+		if(canAttack && !canMove) canAttack = attackAvailable();
 		if (ally && hasAvailableAction())
-			app.batch.draw(app.assets.highlights[6], offset.x, offset.y, scale, scale);
+			app.batch.draw(app.assets.highlights[5], offset.x, offset.y, scale, scale);
 
 		draw(app.batch);
 	}
 
 	public void drawAvailableMoves() {
 		float scale = world.tileSize / world.mapCamera.zoom;
+		int searchRadius = Math.max(movement, range);
+		boolean attackAvailable = false;
 
-		for (int x = -movement; x < movement + 1; x++) {
-			for (int y = -movement; y < movement + 1; y++) {
-				if (!canMoveTo(tileX + x, tileY + y)) continue;
+		for (int x = -searchRadius; x < searchRadius + 1; x++) {
+			for (int y = -searchRadius; y < searchRadius + 1; y++) {
 				Vector2 offset = world.getTileOffset(tileX + x, tileY + y);
 
-				app.batch.draw(app.assets.highlights[7], offset.x, offset.y, scale, scale);
+				if (canMoveToTile(x + tileX, y + tileY)) {
+					app.batch.draw(app.assets.highlights[6], offset.x, offset.y, scale, scale);
+				} else if (canAttackEnemy(world.getUnit(x + tileX, y + tileY))) {
+					app.batch.draw(app.assets.highlights[7], offset.x, offset.y, scale, scale);
+					attackAvailable = true;
+				}
 			}
 		}
+
+		if (!canMove && !attackAvailable) canAttack = false;
 	}
 
 	public void adjustHealth(int value) {
@@ -119,11 +152,6 @@ public class Unit extends Sprite {
 
 	public boolean hasAvailableAction() {
 		return canMove || canAttack;
-	}
-
-	public void endTurn() {
-		canAttack = false;
-		canMove = false;
 	}
 
 	public void nextTurn() {

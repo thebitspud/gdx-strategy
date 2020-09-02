@@ -111,12 +111,24 @@ public class MapInput implements InputProcessor {
 		if (button == Input.Buttons.LEFT) {
 			leftDown = true;
 
-			if (selectedUnit != null) {
-				selectedUnit.move(hoveredTileX, hoveredTileY);
-				selectedUnit = null;
-			}
-
 			Unit hoveredUnit = world.getUnit(hoveredTileX, hoveredTileY);
+
+			// spaghetti time :D
+
+			if (selectedUnit != null) {
+				if (hoveredUnit != null)
+					if (selectedUnit == hoveredUnit) {
+						selectedUnit = null;
+						return true;
+					} else if (!selectedUnit.canAttackEnemy(hoveredUnit)) selectedUnit = null;
+					else selectedUnit.attack(hoveredUnit);
+				else if (!selectedUnit.canMoveToTile(hoveredTileX, hoveredTileY)) {
+					selectedUnit = null;
+					return true;
+				} else selectedUnit.move(hoveredTileX, hoveredTileY);
+
+				if(selectedUnit != null && !selectedUnit.hasAvailableAction()) selectedUnit = null;
+			}
 
 			if (hoveredUnit != null && hoveredUnit.isAlly() && hoveredUnit.hasAvailableAction()) {
 				selectedUnit = hoveredUnit;
