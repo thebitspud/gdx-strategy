@@ -34,7 +34,7 @@ public abstract class Player {
 	}
 
 	public void render() {
-		for(Unit unit: units) unit.updateScreenPosition();
+		for(Unit unit: units) unit.update();
 	}
 
 	public void spawnUnit(int x, int y, Unit.ID id) {

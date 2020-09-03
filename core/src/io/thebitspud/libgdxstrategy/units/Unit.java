@@ -1,11 +1,13 @@
 package io.thebitspud.libgdxstrategy.units;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 import io.thebitspud.libgdxstrategy.StrategyGame;
 import io.thebitspud.libgdxstrategy.players.Player;
 import io.thebitspud.libgdxstrategy.world.World;
 import io.thebitspud.libgdxstrategy.players.User;
+import space.earlygrey.shapedrawer.ShapeDrawer;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -54,6 +56,53 @@ public class Unit extends Sprite {
 		ID(int id) {
 			this.numID = id;
 		}
+	}
+
+	public void update() {
+		Vector2 offset = world.getTileOffset(tileX, tileY);
+		setPosition(offset.x, offset.y);
+
+		float scale = world.tileSize / world.mapCamera.zoom;
+		setSize(scale, scale);
+
+		if(canAttack && !canMove) canAttack = (getTarget() != null);
+		if (getAlliance() == Player.Alliance.RED && hasAvailableAction())
+			app.batch.draw(app.assets.highlights[5], offset.x, offset.y, scale, scale);
+
+		draw(app.batch);
+		drawHealthBar();
+	}
+
+	private void drawHealthBar() {
+		ShapeDrawer drawer = new ShapeDrawer(app.batch, app.assets.pixel);
+		drawer.filledRectangle(getX(), getY(), getWidth(), 3 / world.mapCamera.zoom, Color.BLACK);
+		drawer.setColor((100 - getHealthPercent()) / 100f, getHealthPercent() / 100f, 0, 1);
+		float barWidth = getWidth() * getHealthPercent() / 100;
+		drawer.filledRectangle(getX(), getY(), barWidth, 3 / world.mapCamera.zoom);
+	}
+
+	public void drawAvailableMoves() {
+		float scale = world.tileSize / world.mapCamera.zoom;
+		int searchRadius = Math.max(movement * 2 + 1, range);
+		boolean attackAvailable = false;
+
+		moves.clear();
+		findMoves();
+
+		for (int x = -searchRadius; x < searchRadius + 1; x++) {
+			for (int y = -searchRadius; y < searchRadius + 1; y++) {
+				Vector2 offset = world.getTileOffset(tileX + x, tileY + y);
+
+				if (canMoveToTile(x + tileX, y + tileY)) {
+					app.batch.draw(app.assets.highlights[6], offset.x, offset.y, scale, scale);
+				} else if (canAttackEnemy(world.getUnit(x + tileX, y + tileY))) {
+					app.batch.draw(app.assets.highlights[7], offset.x, offset.y, scale, scale);
+					attackAvailable = true;
+				}
+			}
+		}
+
+		if (!canMove && !attackAvailable) canAttack = false;
 	}
 
 	public void move(int x, int y) {
@@ -131,44 +180,6 @@ public class Unit extends Sprite {
 		return 2 * (diffX + diffY) - Math.min(diffX, diffY) <= (range * 2 + 1);
 	}
 
-	public void updateScreenPosition() {
-		Vector2 offset = world.getTileOffset(tileX, tileY);
-		setPosition(offset.x, offset.y);
-
-		float scale = world.tileSize / world.mapCamera.zoom;
-		setSize(scale, scale);
-
-		if(canAttack && !canMove) canAttack = (getTarget() != null);
-		if (getAlliance() == Player.Alliance.RED && hasAvailableAction())
-			app.batch.draw(app.assets.highlights[5], offset.x, offset.y, scale, scale);
-
-		draw(app.batch);
-	}
-
-	public void drawAvailableMoves() {
-		float scale = world.tileSize / world.mapCamera.zoom;
-		int searchRadius = Math.max(movement * 2 + 1, range);
-		boolean attackAvailable = false;
-
-		moves.clear();
-		findMoves();
-
-		for (int x = -searchRadius; x < searchRadius + 1; x++) {
-			for (int y = -searchRadius; y < searchRadius + 1; y++) {
-				Vector2 offset = world.getTileOffset(tileX + x, tileY + y);
-
-				if (canMoveToTile(x + tileX, y + tileY)) {
-					app.batch.draw(app.assets.highlights[6], offset.x, offset.y, scale, scale);
-				} else if (canAttackEnemy(world.getUnit(x + tileX, y + tileY))) {
-					app.batch.draw(app.assets.highlights[7], offset.x, offset.y, scale, scale);
-					attackAvailable = true;
-				}
-			}
-		}
-
-		if (!canMove && !attackAvailable) canAttack = false;
-	}
-
 	public void adjustHealth(int value) {
 		health += value;
 
@@ -196,6 +207,10 @@ public class Unit extends Sprite {
 
 	public int getTileY() {
 		return tileY;
+	}
+
+	public float getHealthPercent() {
+		return (float) health / maxHealth * 100;
 	}
 
 	public int getMovement() {
