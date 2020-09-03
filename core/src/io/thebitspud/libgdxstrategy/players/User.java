@@ -27,4 +27,9 @@ public class User extends Player {
 	public void playTurn() {
 		for(Unit unit: units) unit.nextTurn();
 	}
+
+	@Override
+	public String getPlayerInfo() {
+		return "Player.USER" + "\n" + "Alliance: " + getAlliance();
+	}
 }

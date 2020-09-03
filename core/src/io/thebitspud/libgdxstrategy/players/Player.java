@@ -25,6 +25,7 @@ public abstract class Player {
 
 	public abstract void initUnits();
 	public abstract void playTurn();
+	public abstract String getPlayerInfo();
 
 	public void updateUnits() {
 		for (int i = 0; i < units.size(); i++) {

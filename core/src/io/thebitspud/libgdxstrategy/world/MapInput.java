@@ -81,11 +81,10 @@ public class MapInput implements InputProcessor {
 		Unit unit = world.getUnit(hoveredTileX, hoveredTileY);
 
 		String coordText = "[" + hoveredTileX + "," + hoveredTileY + "]";
-		String idText = "\nTile." + tile;
-		String propertiesText = "\nSolid: " + tile.isSolid();
+		String tileText = tile.getTileInfo();
 		String unitText = (unit == null) ? "" : "\n\n" + unit.getUnitInfo();
 
-		app.gameScreen.tileInfo.setText(coordText + idText + propertiesText + unitText);
+		app.gameScreen.tileInfo.setText(coordText + tileText + unitText);
 	}
 
 	@Override

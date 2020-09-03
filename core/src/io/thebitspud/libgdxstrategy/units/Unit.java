@@ -17,7 +17,7 @@ public class Unit extends Sprite {
 	private final World world;
 	private Player player;
 
-	private int tileX, tileY, health, maxHealth, movement, attack, range;
+	private int tileX, tileY, health, maxHealth, agility, attack, range;
 	private boolean active, canMove, canAttack;
 	private final ID id;
 	private final HashMap<Point, Integer> moves;
@@ -37,10 +37,10 @@ public class Unit extends Sprite {
 		if(player.getAlliance() == Player.Alliance.BLUE) flip(true, false);
 	}
 
-	protected void setStats(int health, int movement, int range, int attack) {
+	protected void setStats(int health, int agility, int range, int attack) {
 		this.health = health;
 		this.maxHealth = health;
-		this.movement = movement;
+		this.agility = agility;
 		this.range = range;
 		this.attack = attack;
 	}
@@ -83,7 +83,7 @@ public class Unit extends Sprite {
 
 	public void drawAvailableMoves() {
 		float scale = world.tileSize / world.mapCamera.zoom;
-		int searchRadius = Math.max(movement * 2 + 1, range);
+		int searchRadius = Math.max(agility * 2 + 1, range);
 		boolean attackAvailable = false;
 
 		moves.clear();
@@ -122,7 +122,7 @@ public class Unit extends Sprite {
 	}
 
 	public void findMoves() {
-		findMoves(tileX, tileY, movement * 2 + 1);
+		findMoves(tileX, tileY, agility * 2 + 1);
 	}
 
 	public void findMoves(int x, int y, int movesLeft) {
@@ -192,9 +192,9 @@ public class Unit extends Sprite {
 
 	public String getUnitInfo() {
 		String healthText = "\nHP: " + health + "/" + maxHealth;
-		String statsText = "\nMovement: " + movement + "\nRange: " + range + "\nAttack: " + attack;
-		String userText = "\n\nUser." + (getAlliance() == Player.Alliance.RED ? "PLAYER" : "AI_1");
-		return "Unit." + id + healthText + statsText + userText;
+		String statsText = "\nAgility: " + agility + "\nRange: " + range + "\nAttack: " + attack;
+		String playerText = "\n\n" + player.getPlayerInfo();
+		return "Unit." + id + healthText + statsText + playerText;
 	}
 
 	public boolean moveAvailable() {
@@ -213,8 +213,8 @@ public class Unit extends Sprite {
 		return (float) health / maxHealth * 100;
 	}
 
-	public int getMovement() {
-		return movement;
+	public int getAgility() {
+		return agility;
 	}
 
 	public Player.Alliance getAlliance() {

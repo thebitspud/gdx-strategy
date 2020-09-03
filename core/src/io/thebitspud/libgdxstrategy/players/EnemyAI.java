@@ -44,11 +44,11 @@ public class EnemyAI extends Player {
 				if (!unit.moveAvailable()) break;
 
 				int nextX = unit.getTileX();
-				if (unit.getTileX() < 2) nextX += r.nextInt(unit.getMovement() + 1);
-				else if (unit.getTileX() > 8) nextX -= r.nextInt(unit.getMovement() + 1);
-				else nextX += r.nextInt(unit.getMovement() * 2 + 1) - unit.getMovement();
+				if (unit.getTileX() < 2) nextX += r.nextInt(unit.getAgility() + 1);
+				else if (unit.getTileX() > 8) nextX -= r.nextInt(unit.getAgility() + 1);
+				else nextX += r.nextInt(unit.getAgility() * 2 + 1) - unit.getAgility();
 
-				int nextY = unit.getTileY() + r.nextInt(unit.getMovement() * 2 + 1) - unit.getMovement();
+				int nextY = unit.getTileY() + r.nextInt(unit.getAgility() * 2 + 1) - unit.getAgility();
 				unit.move(nextX, nextY);
 			}
 
@@ -57,5 +57,10 @@ public class EnemyAI extends Player {
 		}
 
 		app.gameScreen.world.nextPlayer();
+	}
+
+	@Override
+	public String getPlayerInfo() {
+		return "Player.ENEMY_AI_1" + "\n" + "Alliance: " + getAlliance();
 	}
 }
