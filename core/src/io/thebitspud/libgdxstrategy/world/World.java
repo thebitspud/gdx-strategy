@@ -79,6 +79,10 @@ public class World {
 		app.batch.end();
 	}
 
+	public void endGame(boolean victory) {
+		app.setScreen(victory ? app.winScreen : app.lossScreen);
+	}
+
 	public void clampMap() {
 		float maxZoom = Math.min((float) width * tileSize / Gdx.graphics.getWidth(),
 				(float) height * tileSize / Gdx.graphics.getHeight());

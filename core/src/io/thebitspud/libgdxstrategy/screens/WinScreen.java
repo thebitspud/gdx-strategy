@@ -12,11 +12,11 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.thebitspud.libgdxstrategy.StrategyGame;
 import io.thebitspud.libgdxstrategy.tools.JInputListener;
 
-public class PauseScreen implements Screen {
+public class WinScreen implements Screen {
 	private StrategyGame app;
 	private Stage stage;
 
-	public PauseScreen(StrategyGame app) {
+	public WinScreen(StrategyGame app) {
 		this.app = app;
 
 		final OrthographicCamera camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -28,27 +28,18 @@ public class PauseScreen implements Screen {
 	private void initStage() {
 		final int midX = Gdx.graphics.getWidth() / 2;
 
-		Label title = new Label("Game Paused", app.assets.titleStyle);
+		Label title = new Label("Victory!", app.assets.titleStyle);
 		title.setPosition(midX - (title.getPrefWidth() / 2), Gdx.graphics.getHeight() * 0.75f);
 
-		ImageButton resumeButton = new ImageButton(app.assets.getButtonStyle(app.assets.buttons[3]));
-		resumeButton.addListener(new JInputListener() {
-			@Override
-			public void onClick() {
-				app.setScreen(app.gameScreen);
-			}
-		});
-		resumeButton.setPosition(midX - 200, Gdx.graphics.getHeight() * 0.55f);
-
-		ImageButton restartButton = new ImageButton(app.assets.getButtonStyle(app.assets.buttons[4]));
-		restartButton.addListener(new JInputListener() {
+		ImageButton playButton = new ImageButton(app.assets.getButtonStyle(app.assets.buttons[4]));
+		playButton.addListener(new JInputListener() {
 			@Override
 			public void onClick() {
 				app.setScreen(app.gameScreen);
 				app.gameScreen.world.init("testlevel.tmx");
 			}
 		});
-		restartButton.setPosition(midX - 200, Gdx.graphics.getHeight() * 0.35f);
+		playButton.setPosition(midX - 200, Gdx.graphics.getHeight() * 0.55f);
 
 		ImageButton quitButton = new ImageButton(app.assets.getButtonStyle(app.assets.buttons[5]));
 		quitButton.addListener(new JInputListener() {
@@ -57,11 +48,10 @@ public class PauseScreen implements Screen {
 				app.setScreen(app.titleScreen);
 			}
 		});
-		quitButton.setPosition(midX - 200, Gdx.graphics.getHeight() * 0.15f);
+		quitButton.setPosition(midX - 200, Gdx.graphics.getHeight() * 0.3f);
 
 		stage.addActor(title);
-		stage.addActor(resumeButton);
-		stage.addActor(restartButton);
+		stage.addActor(playButton);
 		stage.addActor(quitButton);
 	}
 
@@ -73,9 +63,9 @@ public class PauseScreen implements Screen {
 	@Override
 	public void render(float delta) {
 		if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) app.setScreen(app.titleScreen);
-		if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) app.setScreen(app.gameScreen);
+		if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) app.setScreen(app.titleScreen);
 
-		Gdx.gl.glClearColor(0.5f, 0.5f, 0.5f, 1);
+		Gdx.gl.glClearColor(0.1f, 0.7f, 0.1f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 		stage.act();

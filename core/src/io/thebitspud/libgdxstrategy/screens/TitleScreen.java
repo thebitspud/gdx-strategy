@@ -14,7 +14,6 @@ import io.thebitspud.libgdxstrategy.tools.JInputListener;
 
 public class TitleScreen implements Screen {
 	private StrategyGame app;
-
 	private Stage stage;
 
 	public TitleScreen(StrategyGame app) {
@@ -37,12 +36,23 @@ public class TitleScreen implements Screen {
 			@Override
 			public void onClick() {
 				app.setScreen(app.gameScreen);
+				app.gameScreen.world.init("testlevel.tmx");
 			}
 		});
 		playButton.setPosition(midX - 200, Gdx.graphics.getHeight() * 0.55f);
 
+		ImageButton quitButton = new ImageButton(app.assets.getButtonStyle(app.assets.buttons[5]));
+		quitButton.addListener(new JInputListener() {
+			@Override
+			public void onClick() {
+				Gdx.app.exit();
+			}
+		});
+		quitButton.setPosition(midX - 200, Gdx.graphics.getHeight() * 0.3f);
+
 		stage.addActor(title);
 		stage.addActor(playButton);
+		stage.addActor(quitButton);
 	}
 
 	@Override
@@ -55,7 +65,7 @@ public class TitleScreen implements Screen {
 		if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) Gdx.app.exit();
 		if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) app.setScreen(app.gameScreen);
 
-		Gdx.gl.glClearColor(0, 0.5f, 0.1f, 1);
+		Gdx.gl.glClearColor(0.2f, 0.6f, 0.2f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 		stage.act();

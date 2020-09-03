@@ -32,6 +32,8 @@ public abstract class Player {
 			Unit unit = units.get(i);
 			if (unit.isDead()) units.remove(unit);
 		}
+
+		if (units.isEmpty()) world.endGame(alliance == Alliance.BLUE);
 	}
 
 	public void render() {
