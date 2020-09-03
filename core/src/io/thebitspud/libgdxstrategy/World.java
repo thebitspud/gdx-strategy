@@ -50,18 +50,18 @@ public class World {
 		spawnUnit(7, 2, Unit.ID.HEAVY, true);
 		spawnUnit(4, 3, Unit.ID.RANGED, true);
 		spawnUnit(6, 5, Unit.ID.BASIC, true);
-		spawnUnit(3, 7, Unit.ID.MAGIC, true);
-		spawnUnit(7, 9, Unit.ID.BASIC, true);
-		spawnUnit(8, 10, Unit.ID.HEAVY, true);
-		spawnUnit(5, 11, Unit.ID.RANGED, true);
+		spawnUnit(5, 7, Unit.ID.RANGED, true);
+		spawnUnit(7, 8, Unit.ID.HEAVY, true);
+		spawnUnit(8, 10, Unit.ID.BASIC, true);
+		spawnUnit(5, 11, Unit.ID.MAGIC, true);
 		spawnUnit(7, 13, Unit.ID.RANGED, true);
 		spawnUnit(10, 14, Unit.ID.BASIC, true);
 
 		spawnUnit(13, 2, Unit.ID.BASIC, false);
 		spawnUnit(17, 3, Unit.ID.RANGED, false);
 		spawnUnit(14, 5, Unit.ID.BASIC, false);
-		spawnUnit(18, 5, Unit.ID.RANGED, false);
-		spawnUnit(19, 8, Unit.ID.MAGIC, false);
+		spawnUnit(18, 5, Unit.ID.MAGIC, false);
+		spawnUnit(17, 8, Unit.ID.RANGED, false);
 		spawnUnit(15, 7, Unit.ID.HEAVY, false);
 		spawnUnit(16, 11, Unit.ID.BASIC, false);
 		spawnUnit(19, 12, Unit.ID.RANGED, false);
@@ -126,6 +126,7 @@ public class World {
 	public void nextTurn() {
 		for(Unit unit: units) unit.nextTurn();
 		gameTurn += 1;
+		app.gameScreen.mapInput.selectedUnit = null;
 		String turnText = "Turn " + gameTurn + ((maxTurns > 0) ? "/" + maxTurns : "");
 		app.gameScreen.turnInfo.setText(turnText);
 	}

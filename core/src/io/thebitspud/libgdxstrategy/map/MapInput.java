@@ -15,7 +15,7 @@ public class MapInput implements InputProcessor {
 	private boolean[] keyPressed;
 	private boolean leftDown, rightDown;
 	private int hoveredTileX, hoveredTileY, selectedTileX, selectedTileY;
-	private Unit selectedUnit;
+	public Unit selectedUnit;
 
 	public MapInput(StrategyGame app, World world) {
 		this.app = app;

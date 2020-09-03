@@ -5,28 +5,42 @@ import com.badlogic.gdx.math.Vector2;
 import io.thebitspud.libgdxstrategy.StrategyGame;
 import io.thebitspud.libgdxstrategy.World;
 
+import java.awt.*;
+import java.util.HashMap;
+
 public class Unit extends Sprite {
-	private StrategyGame app;
-	private World world;
+	private final StrategyGame app;
+	private final World world;
 
 	protected int tileX, tileY, health, maxHealth, movement, attack, range;
-	private boolean active, ally, canMove, canAttack;
+	private boolean active;
+	private final boolean ally;
+	private boolean canMove;
+	private boolean canAttack;
 	private final ID id;
+	private final HashMap<Point, Integer> moves;
 
-	public Unit(int x, int y, ID id, int health, boolean ally, StrategyGame app) {
+	public Unit(int x, int y, ID id, boolean ally, StrategyGame app) {
 		super(app.assets.units[id.numID][ally ? 0 : 1]);
 		this.tileX = x;
 		this.tileY = y;
-		this.health = health;
 		this.app = app;
 		this.ally = ally;
 		this.id = id;
 
 		world = app.gameScreen.world;
-		maxHealth = health;
 		active = true;
+		moves = new HashMap<>();
 
 		if(!ally) flip(true, false);
+	}
+
+	protected void setStats(int health, int movement, int range, int attack) {
+		this.health = health;
+		this.maxHealth = health;
+		this.movement = movement;
+		this.range = range;
+		this.attack = attack;
 	}
 
 	public enum ID {
@@ -54,11 +68,32 @@ public class Unit extends Sprite {
 
 	public boolean canMoveToTile(int x, int y) {
 		if (!canMove) return false;
-		if (x < 0 || x > world.width - 1) return false;
-		if (y < 0 || y > world.height - 1) return false;
-		if (Math.abs(tileX - x) + Math.abs(tileY - y) > movement) return false;
-		if (world.getUnit(x, y) != null) return false;
-		return !world.getTile(x, y).isSolid();
+		if ( world.getUnit(x, y) != null) return false;
+		return moves.containsKey(new Point(x, y));
+	}
+
+	public void findMoves(int x, int y, int movesLeft) {
+		if (x < 0 || x > world.width - 1) return;
+		if (y < 0 || y > world.height - 1) return;
+		if (world.getUnit(x, y) != null)
+			if (world.getUnit(x, y).isAlly() != ally) return;
+		if (world.getTile(x, y).isSolid()) return;
+
+		Point p = new Point(x, y);
+		if (moves.containsKey(p))
+			if (moves.get(p) >= movesLeft) return;
+		moves.put(p, movesLeft);
+
+		for (int i = 0; i < 9; i++) {
+			int nextX = x + i/3 - 1;
+			int nextY = y + i%3 - 1;
+
+			int moveRequirement = world.getTile(nextX, nextY).reducesMovement() ? 3 : 2;
+			if (i % 2 == 0) moveRequirement++;
+			if (movesLeft < moveRequirement) continue;
+
+			findMoves(nextX, nextY, movesLeft - moveRequirement);
+		}
 	}
 
 	public void attack(Unit enemy) {
@@ -83,7 +118,11 @@ public class Unit extends Sprite {
 		if (enemy == null) return false;
 		if (enemy.isDead()) return false;
 		if (enemy.isAlly() == ally) return false;
-		return Math.abs(tileX - enemy.getTileX()) + Math.abs(tileY - enemy.getTileY()) <= range;
+
+		int diffX = Math.abs(tileX - enemy.getTileX());
+		int diffY = Math.abs(tileY - enemy.getTileY());
+
+		return 2 * (diffX + diffY) - Math.min(diffX, diffY) <= (range * 2 + 1);
 	}
 
 	public void updateScreenPosition() {
@@ -102,8 +141,11 @@ public class Unit extends Sprite {
 
 	public void drawAvailableMoves() {
 		float scale = world.tileSize / world.mapCamera.zoom;
-		int searchRadius = Math.max(movement, range);
+		int searchRadius = Math.max(movement * 2 + 1, range);
 		boolean attackAvailable = false;
+
+		moves.clear();
+		findMoves(tileX, tileY, movement * 2 + 1);
 
 		for (int x = -searchRadius; x < searchRadius + 1; x++) {
 			for (int y = -searchRadius; y < searchRadius + 1; y++) {
@@ -133,7 +175,7 @@ public class Unit extends Sprite {
 
 	public String getUnitInfo() {
 		String healthText = "\nHP: " + health + "/" + maxHealth;
-		String statsText = "\nMovement: " + movement + "\nAttack: " + attack + "\nRange: " + range;
+		String statsText = "\nMovement: " + movement + "\nRange: " + range + "\nAttack: " + attack;
 		String userText = "\n\nUser." + (ally ? "PLAYER" : "AI_1") + "\nAlly: " + ally;
 		return "Unit." + id + healthText + statsText + userText;
 	}
@@ -161,9 +203,5 @@ public class Unit extends Sprite {
 
 	public boolean isDead() {
 		return !active;
-	}
-
-	protected void kill() {
-		this.active = false;
 	}
 }

@@ -21,7 +21,7 @@ public class GameScreen implements Screen {
 	public World world;
 
 	private Stage hud;
-	private MapInput mapInput;
+	public MapInput mapInput;
 	private InputMultiplexer multiplexer;
 	public Label tileInfo, turnInfo;
 

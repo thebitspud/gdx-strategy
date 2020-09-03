@@ -1,19 +1,19 @@
 package io.thebitspud.libgdxstrategy.map;
 
 public enum Tile {
-	VOID(0, true),
-	GRASS(1, false),
-	SAND(2, false),
-	FOREST(3, false),
-	MOUNTAIN(4, true),
-	WATER(5, true);
+	VOID(0, MovementProfile.SOLID),
+	GRASS(1, MovementProfile.FREE),
+	SAND(2, MovementProfile.FREE),
+	FOREST(3,  MovementProfile.REDUCE),
+	MOUNTAIN(4,  MovementProfile.SOLID),
+	WATER(5,  MovementProfile.SOLID);
 
 	private final int id;
-	private final boolean solid;
+	private final MovementProfile profile;
 
-	Tile(int id, boolean solid) {
+	Tile(int id, MovementProfile profile) {
 		this.id = id;
-		this.solid = solid;
+		this.profile = profile;
 	}
 
 	public int getID() {
@@ -21,6 +21,16 @@ public enum Tile {
 	}
 
 	public boolean isSolid() {
-		return solid;
+		return profile == MovementProfile.SOLID;
+	}
+
+	public boolean reducesMovement() {
+		return profile == MovementProfile.REDUCE;
+	}
+
+	enum MovementProfile {
+		FREE,
+		REDUCE,
+		SOLID,
 	}
 }

@@ -5,7 +5,7 @@
  </tileset>
  <layer id="1" name="Terrain" width="24" height="16">
   <data encoding="base64" compression="zlib">
-   eJzVlMsKwCAMBBOT/v8vl0IKIay9OJceFgRlRnysm5lXVuUaWS1+kCUcFFs5ehLiK0cUP2tMed5MPuno7M4nHGF675RD8f7E3znIe1Zs+h3t+M/c/CvUW0rBJnokBH92FXFmX11I8lWP93U3jSECiQ==
+   eJy1lDEOwCAMxEJC///ldmilUwRE1eUGLww2CIibmT9cBxwYP/EFXe6qg0zSf2qN19/ZQAL8IfBPoT/vPZobsaH7DMpG9qruQf2O0P+trf4i08C3Wv15tlHNK6axm4e5w/qruX4Des0CjQ==
   </data>
  </layer>
 </map>
