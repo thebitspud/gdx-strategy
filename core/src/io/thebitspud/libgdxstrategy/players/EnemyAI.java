@@ -55,5 +55,7 @@ public class EnemyAI extends Player {
 			target = unit.getTarget();
 			if (target != null) unit.attack(target);
 		}
+
+		app.gameScreen.world.nextPlayer();
 	}
 }

@@ -1,4 +1,4 @@
-package io.thebitspud.libgdxstrategy.map;
+package io.thebitspud.libgdxstrategy.world;
 
 public enum Tile {
 	VOID(0, MovementProfile.SOLID),

@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 import io.thebitspud.libgdxstrategy.StrategyGame;
 import io.thebitspud.libgdxstrategy.players.Player;
-import io.thebitspud.libgdxstrategy.World;
+import io.thebitspud.libgdxstrategy.world.World;
 import io.thebitspud.libgdxstrategy.players.User;
 
 import java.awt.*;

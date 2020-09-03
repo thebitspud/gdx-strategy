@@ -1,7 +1,7 @@
 package io.thebitspud.libgdxstrategy.players;
 
 import io.thebitspud.libgdxstrategy.StrategyGame;
-import io.thebitspud.libgdxstrategy.World;
+import io.thebitspud.libgdxstrategy.world.World;
 import io.thebitspud.libgdxstrategy.units.*;
 
 import java.util.ArrayList;

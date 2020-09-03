@@ -1,12 +1,10 @@
-package io.thebitspud.libgdxstrategy.map;
+package io.thebitspud.libgdxstrategy.world;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
 import io.thebitspud.libgdxstrategy.StrategyGame;
-import io.thebitspud.libgdxstrategy.World;
-import io.thebitspud.libgdxstrategy.players.Player;
 import io.thebitspud.libgdxstrategy.units.Unit;
 
 public class MapInput implements InputProcessor {
@@ -60,7 +58,6 @@ public class MapInput implements InputProcessor {
 	public void render() {
 		highlightTiles();
 		displayTileInfo();
-		app.batch.end();
 	}
 
 	public void highlightTiles() {

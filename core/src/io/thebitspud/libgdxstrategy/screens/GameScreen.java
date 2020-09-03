@@ -12,17 +12,15 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.thebitspud.libgdxstrategy.StrategyGame;
-import io.thebitspud.libgdxstrategy.World;
+import io.thebitspud.libgdxstrategy.world.World;
 import io.thebitspud.libgdxstrategy.tools.JInputListener;
-import io.thebitspud.libgdxstrategy.map.MapInput;
 
 public class GameScreen implements Screen {
-	private StrategyGame app;
+	private final StrategyGame app;
 	public World world;
 
-	private Stage hud;
-	public MapInput mapInput;
-	private InputMultiplexer multiplexer;
+	private final Stage hud;
+	private final InputMultiplexer multiplexer;
 	public Label tileInfo, turnInfo;
 
 	public GameScreen(StrategyGame app) {
@@ -31,8 +29,7 @@ public class GameScreen implements Screen {
 		world = new World(app);
 		final OrthographicCamera camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		hud = new Stage(new ScreenViewport(camera));
-		mapInput = new MapInput(app, world);
-		multiplexer = new InputMultiplexer(hud, mapInput);
+		multiplexer = new InputMultiplexer(hud, world.mapInput);
 
 		initHUD();
 	}
@@ -59,7 +56,7 @@ public class GameScreen implements Screen {
 		endTurnButton.addListener(new JInputListener() {
 			@Override
 			public void onClick() {
-				world.nextTurn();
+				world.nextPlayer();
 			}
 		});
 		endTurnButton.setPosition(Gdx.graphics.getWidth() - 115, 25);
@@ -83,11 +80,8 @@ public class GameScreen implements Screen {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-		world.tick();
-		mapInput.tick(delta);
-
+		world.tick(delta);
 		world.render();
-		mapInput.render();
 
 		hud.act();
 		hud.draw();
