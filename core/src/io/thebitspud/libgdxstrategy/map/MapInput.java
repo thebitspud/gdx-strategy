@@ -3,18 +3,18 @@ package io.thebitspud.libgdxstrategy.map;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.math.Vector2;
 import io.thebitspud.libgdxstrategy.StrategyGame;
 import io.thebitspud.libgdxstrategy.World;
+import io.thebitspud.libgdxstrategy.players.Player;
 import io.thebitspud.libgdxstrategy.units.Unit;
 
 public class MapInput implements InputProcessor {
 	private final StrategyGame app;
 	private final World world;
-	private boolean[] keyPressed;
+	private final boolean[] keyPressed;
 	private boolean leftDown, rightDown;
-	private int hoveredTileX, hoveredTileY, selectedTileX, selectedTileY;
+	private int hoveredTileX, hoveredTileY;
 	public Unit selectedUnit;
 
 	public MapInput(StrategyGame app, World world) {
@@ -74,7 +74,7 @@ public class MapInput implements InputProcessor {
 		}
 
 		Unit unit = world.getUnit(hoveredTileX, hoveredTileY);
-		if (unit != null && unit.isAlly()) index += unit.hasAvailableAction() ? 2 : 0;
+		if (unit != null && unit.isUserUnit()) index += unit.hasAvailableAction() ? 2 : 0;
 
 		app.batch.draw(app.assets.highlights[index], offset.x, offset.y, scale, scale);
 	}
@@ -132,11 +132,8 @@ public class MapInput implements InputProcessor {
 				if(selectedUnit != null && !selectedUnit.hasAvailableAction()) selectedUnit = null;
 			}
 
-			if (hoveredUnit != null && hoveredUnit.isAlly() && hoveredUnit.hasAvailableAction()) {
+			if (hoveredUnit != null && hoveredUnit.isUserUnit() && hoveredUnit.hasAvailableAction())
 				selectedUnit = hoveredUnit;
-				selectedTileX = hoveredTileX;
-				selectedTileY = hoveredTileY;
-			}
 		}
 
 		if (button == Input.Buttons.RIGHT) rightDown = true;

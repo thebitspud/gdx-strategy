@@ -1,10 +1,11 @@
 package io.thebitspud.libgdxstrategy.units;
 
 import io.thebitspud.libgdxstrategy.StrategyGame;
+import io.thebitspud.libgdxstrategy.players.Player;
 
 public class MagicUnit extends Unit {
-	public MagicUnit(int x, int y, boolean ally, StrategyGame app) {
-		super(x, y, ID.MAGIC, ally, app);
+	public MagicUnit(int x, int y, Player player, StrategyGame app) {
+		super(x, y, ID.MAGIC, player, app);
 		setStats(10, 2, 2, 3);
 	}
 }

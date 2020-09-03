@@ -72,8 +72,8 @@ public class GameScreen implements Screen {
 
 	@Override
 	public void show() {
+		if(world.height == 0) world.init("testlevel.tmx");
 		Gdx.input.setInputProcessor(multiplexer);
-		world.loadMap("testlevel.tmx");
 	}
 
 	@Override

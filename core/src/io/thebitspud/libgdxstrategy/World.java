@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import io.thebitspud.libgdxstrategy.map.Tile;
+import io.thebitspud.libgdxstrategy.players.*;
 import io.thebitspud.libgdxstrategy.units.*;
 
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class World {
 	public TiledMap map;
 	private TiledMapRenderer mapRenderer;
 	public OrthographicCamera mapCamera;
-	private ArrayList<Unit> units;
+	private ArrayList<Player> players;
 
 	public int width, height, tileSize, gameTurn, maxTurns;
 
@@ -28,10 +29,10 @@ public class World {
 		this.app = app;
 
 		mapCamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		units = new ArrayList<>();
+		players = new ArrayList<>();
 	}
 
-	public void loadMap(String fileName) {
+	public void init(String fileName) {
 		map = app.assets.get(fileName, TiledMap.class);
 		mapRenderer = new OrthogonalTiledMapRenderer(map);
 
@@ -41,40 +42,16 @@ public class World {
 
 		gameTurn = 0;
 		maxTurns = -1;
-		initUnits();
-	}
 
-	public void initUnits() {
-		units.clear();
-
-		spawnUnit(7, 2, Unit.ID.HEAVY, true);
-		spawnUnit(4, 3, Unit.ID.RANGED, true);
-		spawnUnit(6, 5, Unit.ID.BASIC, true);
-		spawnUnit(5, 7, Unit.ID.RANGED, true);
-		spawnUnit(7, 8, Unit.ID.HEAVY, true);
-		spawnUnit(8, 10, Unit.ID.BASIC, true);
-		spawnUnit(5, 11, Unit.ID.MAGIC, true);
-		spawnUnit(7, 13, Unit.ID.RANGED, true);
-		spawnUnit(10, 14, Unit.ID.BASIC, true);
-
-		spawnUnit(13, 2, Unit.ID.BASIC, false);
-		spawnUnit(17, 3, Unit.ID.RANGED, false);
-		spawnUnit(14, 5, Unit.ID.BASIC, false);
-		spawnUnit(18, 5, Unit.ID.MAGIC, false);
-		spawnUnit(17, 8, Unit.ID.RANGED, false);
-		spawnUnit(15, 7, Unit.ID.HEAVY, false);
-		spawnUnit(16, 11, Unit.ID.BASIC, false);
-		spawnUnit(19, 12, Unit.ID.RANGED, false);
-		spawnUnit(16, 14, Unit.ID.HEAVY, false);
+		players.clear();
+		players.add(new User(100, app));
+		players.add(new EnemyAI(100, app));
 
 		nextTurn();
 	}
 
 	public void tick() {
-		for (int i = 0; i < units.size(); i++) {
-			Unit unit = units.get(i);
-			if (unit.isDead()) units.remove(unit);
-		}
+		for (Player player: players) player.updateUnits();
 
 		Vector3 pos = mapCamera.position;
 
@@ -95,7 +72,7 @@ public class World {
 
 		app.batch.begin();
 
-		for(Unit unit: units) unit.updateScreenPosition();
+		for (Player player: players) player.render();
 	}
 
 	public void clampMap() {
@@ -104,27 +81,9 @@ public class World {
 		mapCamera.zoom = (float) MathUtils.clamp(mapCamera.zoom, 0.5, maxZoom);
 	}
 
-	public void spawnUnit(int x, int y, Unit.ID id, boolean ally) {
-		if(getUnit(x, y) != null) return;
-
-		switch (id) {
-			case BASIC:
-				units.add(new BasicUnit(x, y, ally, app));
-				break;
-			case RANGED:
-				units.add(new RangedUnit(x, y, ally, app));
-				break;
-			case MAGIC:
-				units.add(new MagicUnit(x, y, ally, app));
-				break;
-			case HEAVY:
-				units.add(new HeavyUnit(x, y, ally, app));
-				break;
-		}
-	}
-
 	public void nextTurn() {
-		for(Unit unit: units) unit.nextTurn();
+		for (Player player: players) player.playTurn();
+
 		gameTurn += 1;
 		app.gameScreen.mapInput.selectedUnit = null;
 		String turnText = "Turn " + gameTurn + ((maxTurns > 0) ? "/" + maxTurns : "");
@@ -151,9 +110,10 @@ public class World {
 	}
 
 	public Unit getUnit(int x, int y) {
-		for(Unit unit: units)
-			if(unit.getTileX() == x && unit.getTileY() == y)
-				return unit;
+		for (Player player: players)
+			for(Unit unit: player.units)
+				if(unit.getTileX() == x && unit.getTileY() == y)
+					return unit;
 
 		return null;
 	}
