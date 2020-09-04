@@ -46,6 +46,7 @@ public class World {
 		maxTurns = -1;
 		lastPlayer = -1;
 
+		nextTurn();
 		players.clear();
 		players.add(new User(100, app));
 		players.add(new EnemyAI(100, app));
@@ -55,18 +56,9 @@ public class World {
 	public void tick(float delta) {
 		for (Player player: players) player.updateUnits();
 
-		Vector3 pos = mapCamera.position;
-
-		float xHalf = Gdx.graphics.getWidth() * mapCamera.zoom / 2f;
-		float yHalf = Gdx.graphics.getHeight() * mapCamera.zoom / 2f;
-		float xLim = width * tileSize - xHalf;
-		float yLim = height * tileSize - yHalf;
-
-		pos.x = MathUtils.clamp(pos.x, xHalf, xLim);
-		pos.y = MathUtils.clamp(pos.y, yHalf, yLim);
-
-		mapCamera.update();
 		mapInput.tick(delta);
+		clampMap();
+		mapCamera.update();
 	}
 
 	public void render() {
@@ -84,9 +76,19 @@ public class World {
 	}
 
 	public void clampMap() {
+		Vector3 pos = mapCamera.position;
+
 		float maxZoom = Math.min((float) width * tileSize / Gdx.graphics.getWidth(),
 				(float) height * tileSize / Gdx.graphics.getHeight());
 		mapCamera.zoom = (float) MathUtils.clamp(mapCamera.zoom, 0.5, maxZoom);
+
+		float xHalf = Gdx.graphics.getWidth() * mapCamera.zoom / 2f;
+		float yHalf = Gdx.graphics.getHeight() * mapCamera.zoom / 2f;
+		float xLim = width * tileSize - xHalf;
+		float yLim = height * tileSize - yHalf;
+
+		pos.x = MathUtils.clamp(pos.x, xHalf, xLim);
+		pos.y = MathUtils.clamp(pos.y, yHalf, yLim);
 	}
 
 	public void nextPlayer() {
