@@ -44,6 +44,12 @@ public class MapInput implements InputProcessor {
 	}
 
 	private void updateFocusedTile() {
+		if (Gdx.input.getX() > Gdx.graphics.getWidth() - 143) {
+			hoveredTileX = -1;
+			hoveredTileY = -1;
+			return;
+		}
+
 		Vector3 mousePos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
 		mousePos = world.mapCamera.unproject(mousePos);
 
@@ -81,6 +87,11 @@ public class MapInput implements InputProcessor {
 	}
 
 	private void displayTileInfo() {
+		if (hoveredTileX < 0 || hoveredTileY < 0) {
+			app.gameScreen.tileInfo.setText("");
+			return;
+		}
+
 		Tile tile =  world.getTile(hoveredTileX, hoveredTileY);
 		Unit unit = world.getUnit(hoveredTileX, hoveredTileY);
 

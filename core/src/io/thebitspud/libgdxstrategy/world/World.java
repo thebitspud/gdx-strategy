@@ -1,6 +1,7 @@
 package io.thebitspud.libgdxstrategy.world;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
@@ -13,6 +14,7 @@ import com.badlogic.gdx.math.Vector3;
 import io.thebitspud.libgdxstrategy.StrategyGame;
 import io.thebitspud.libgdxstrategy.players.*;
 import io.thebitspud.libgdxstrategy.units.*;
+import space.earlygrey.shapedrawer.ShapeDrawer;
 
 import java.util.ArrayList;
 
@@ -71,6 +73,12 @@ public class World {
 		app.batch.begin();
 		for (Player player: players) player.render();
 		mapInput.render();
+
+		ShapeDrawer drawer = new ShapeDrawer(app.batch, app.assets.pixel);
+		int hudX = Gdx.graphics.getWidth() - 140;
+		drawer.filledRectangle(hudX, 0, 140, Gdx.graphics.getHeight(), Color.DARK_GRAY);
+		drawer.filledRectangle(hudX - 3, 0, 3, Gdx.graphics.getHeight(), Color.BLACK);
+
 		app.batch.end();
 	}
 
@@ -87,7 +95,7 @@ public class World {
 
 		float xHalf = Gdx.graphics.getWidth() * mapCamera.zoom / 2f;
 		float yHalf = Gdx.graphics.getHeight() * mapCamera.zoom / 2f;
-		float xLim = width * tileSize - xHalf;
+		float xLim = width * tileSize - xHalf + (143 * mapCamera.zoom);
 		float yLim = height * tileSize - yHalf;
 
 		pos.x = MathUtils.clamp(pos.x, xHalf, xLim);
