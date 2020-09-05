@@ -49,8 +49,8 @@ public class World {
 		app.gameScreen.chosenUnit = null;
 
 		players.clear();
-		players.add(user = new User(100, app));
-		players.add(new EnemyAI(100, app));
+		players.add(user = new User(-25, app));
+		players.add(new EnemyAI(-25, app));
 
 		nextPlayer();
 		nextTurn();
@@ -146,15 +146,10 @@ public class World {
 	}
 
 	public Vector2 getTileOffset(int x, int y) {
-		int adjustedY = (height - y - 1);
-
-		float cameraOffsetX = x * tileSize - mapCamera.position.x;
-		float cameraOffsetY = adjustedY * tileSize - mapCamera.position.y;
-
-		float xOffset = cameraOffsetX / mapCamera.zoom + Gdx.graphics.getWidth() / 2f;
-		float yOffset = cameraOffsetY / mapCamera.zoom + Gdx.graphics.getHeight() / 2f;
-
-		return new Vector2(xOffset, yOffset);
+		int adjustedY = height - y - 1;
+		Vector3 screenPos = new Vector3(x * tileSize, adjustedY * tileSize, 0);
+		screenPos = mapCamera.project(screenPos);
+		return new Vector2(screenPos.x, screenPos.y);
 	}
 
 	public void dispose() {

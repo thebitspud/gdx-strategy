@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import io.thebitspud.libgdxstrategy.StrategyGame;
 import io.thebitspud.libgdxstrategy.units.Unit;
 
@@ -43,14 +44,11 @@ public class MapInput implements InputProcessor {
 	}
 
 	private void updateFocusedTile() {
-		float screenOffsetX = world.mapCamera.zoom * (Gdx.input.getX() - Gdx.graphics.getWidth() / 2f);
-		float screenOffsetY = world.mapCamera.zoom * (Gdx.input.getY() - Gdx.graphics.getHeight() / 2f);
+		Vector3 mousePos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+		mousePos = world.mapCamera.unproject(mousePos);
 
-		float offsetX = screenOffsetX + world.mapCamera.position.x;
-		float offsetY = screenOffsetY - world.mapCamera.position.y + (world.height * world.tileSize);
-
-		hoveredTileX = (int) (offsetX / world.tileSize);
-		hoveredTileY = (int) (offsetY / world.tileSize);
+		hoveredTileX = (int) (mousePos.x / world.tileSize);
+		hoveredTileY = (int) (world.height - mousePos.y / world.tileSize);
 	}
 
 	public void render() {
@@ -66,6 +64,14 @@ public class MapInput implements InputProcessor {
 		if (selectedUnit != null) {
 			selectedUnit.drawAvailableMoves();
 			app.batch.draw(app.assets.highlights[4], selectedUnit.getX(), selectedUnit.getY(), scale, scale);
+		}
+
+		if (app.gameScreen.chosenUnit != null) {
+			Vector2 originOffset = world.getTileOffset(0, 0);
+			for (int i = 0; i < world.height; i++) {
+				float yPosition = originOffset.y - (i * scale);
+				app.batch.draw(app.assets.highlights[6], originOffset.x, yPosition, scale, scale);
+			}
 		}
 
 		Unit unit = world.getUnit(hoveredTileX, hoveredTileY);
@@ -141,7 +147,7 @@ public class MapInput implements InputProcessor {
 
 	public void spawnSelectedUnit() {
 		if (app.gameScreen.chosenUnit != null) {
-			world.user.spawnUnit(hoveredTileX, hoveredTileY, app.gameScreen.chosenUnit, true);
+			if (hoveredTileX == 0) world.user.spawnUnit(hoveredTileX, hoveredTileY, app.gameScreen.chosenUnit, true);
 			app.gameScreen.chosenUnit = null;
 			app.gameScreen.unitButtonGroup.uncheckAll();
 			selectedUnit = null;
