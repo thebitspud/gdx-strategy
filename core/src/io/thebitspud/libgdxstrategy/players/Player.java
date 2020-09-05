@@ -10,7 +10,7 @@ public abstract class Player {
 	protected StrategyGame app;
 	protected World world;
 	public ArrayList<Unit> units;
-	private Alliance alliance;
+	private final Alliance alliance;
 	private int gold;
 
 	public Player(int startingGold, Alliance alliance, StrategyGame app) {
@@ -40,28 +40,48 @@ public abstract class Player {
 		for(Unit unit: units) unit.update();
 	}
 
-	public void spawnUnit(int x, int y, Unit.ID id) {
+	public void spawnUnit(int x, int y, Unit.ID id, boolean mustBuy) {
+		if (x < 0 || x > world.width - 1 || y < 0 || y > world.height - 1) return;
 		if(world.getUnit(x, y) != null) return;
+		if (world.getTile(x, y).isSolid()) return;
+
+		Unit unit;
 
 		switch (id) {
-			case BASIC:
-				units.add(new BasicUnit(x, y, this, app));
-				break;
 			case RANGED:
-				units.add(new RangedUnit(x, y, this, app));
+				unit = new RangedUnit(x, y, this, app);
 				break;
 			case MAGIC:
-				units.add(new MagicUnit(x, y, this, app));
+				unit = new MagicUnit(x, y, this, app);
 				break;
 			case HEAVY:
-				units.add(new HeavyUnit(x, y, this, app));
+				unit = new HeavyUnit(x, y, this, app);
 				break;
+			case BASIC:
+			default:
+				unit = new BasicUnit(x, y, this, app);
 		}
+
+		if (mustBuy) {
+			if (gold >= unit.getCost()) {
+				units.add(unit);
+				adjustGold(-unit.getCost());
+			}
+		} else units.add(unit);
 	}
 
 	public enum Alliance { RED, BLUE }
 
 	public Alliance getAlliance() {
 		return alliance;
+	}
+
+	public int getCurrentGold() {
+		return gold;
+	}
+
+	public void adjustGold(int gold) {
+		this.gold += gold;
+		if (alliance == Alliance.RED) world.updateTurnInfo();
 	}
 }

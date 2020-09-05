@@ -108,17 +108,21 @@ public class MapInput implements InputProcessor {
 			leftDown = true;
 
 			Unit hoveredUnit = world.getUnit(hoveredTileX, hoveredTileY);
+			if (hoveredUnit != null) {
+				app.gameScreen.chosenUnit = null;
+				app.gameScreen.unitButtonGroup.uncheckAll();
+			}
 
 			// spaghetti time :D
 
 			if (selectedUnit != null) {
-				if (hoveredUnit != null)
+				if (hoveredUnit != null) {
 					if (selectedUnit == hoveredUnit) {
 						selectedUnit = null;
 						return true;
 					} else if (!selectedUnit.canAttackEnemy(hoveredUnit)) selectedUnit = null;
 					else selectedUnit.attack(hoveredUnit);
-				else if (!selectedUnit.canMoveToTile(hoveredTileX, hoveredTileY)) {
+				} else if (!selectedUnit.canMoveToTile(hoveredTileX, hoveredTileY)) {
 					selectedUnit = null;
 					return true;
 				} else selectedUnit.move(hoveredTileX, hoveredTileY);
@@ -126,13 +130,22 @@ public class MapInput implements InputProcessor {
 				if(selectedUnit != null && !selectedUnit.hasAvailableAction()) selectedUnit = null;
 			}
 
-			if (hoveredUnit != null && hoveredUnit.isUserUnit() && hoveredUnit.hasAvailableAction())
-				selectedUnit = hoveredUnit;
+			if (hoveredUnit == null) spawnSelectedUnit();
+			else if (hoveredUnit.isUserUnit() && hoveredUnit.hasAvailableAction()) selectedUnit = hoveredUnit;
 		}
 
 		if (button == Input.Buttons.RIGHT) rightDown = true;
 
 		return true;
+	}
+
+	public void spawnSelectedUnit() {
+		if (app.gameScreen.chosenUnit != null) {
+			world.user.spawnUnit(hoveredTileX, hoveredTileY, app.gameScreen.chosenUnit, true);
+			app.gameScreen.chosenUnit = null;
+			app.gameScreen.unitButtonGroup.uncheckAll();
+			selectedUnit = null;
+		}
 	}
 
 	@Override

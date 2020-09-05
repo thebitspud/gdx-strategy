@@ -21,7 +21,7 @@ public class AssetLibrary extends AssetManager {
 	public Label.LabelStyle titleStyle, subTitleStyle, largeTextStyle, smallTextStyle;
 
 	public AssetLibrary() {
-		buttons = new TextureRegionDrawable[15][3];
+		buttons = new TextureRegionDrawable[16][3];
 		highlights = new TextureRegion[8];
 		units = new TextureRegion[4][2];
 	}
@@ -61,6 +61,8 @@ public class AssetLibrary extends AssetManager {
 			if (i < 6) buttons[i] = getButton(buttonSheet, 0, i * 90, 400);
 			else buttons[i] = getButton(buttonSheet, 1200, (i - 6) * 90, 90);
 		}
+
+		buttons[15] = getButton(buttonSheet, 0, 710, 90);
 
 		for ( int i = 0; i < 8; i++)
 			highlights[i] = new TextureRegion(highlightSheet, i * 66, 0, 64, 64);

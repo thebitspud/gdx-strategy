@@ -12,15 +12,15 @@ public class User extends Player {
 	public void initUnits() {
 		units.clear();
 
-		spawnUnit(7, 2, Unit.ID.HEAVY);
-		spawnUnit(4, 3, Unit.ID.RANGED);
-		spawnUnit(6, 5, Unit.ID.BASIC);
-		spawnUnit(5, 7, Unit.ID.RANGED);
-		spawnUnit(7, 8, Unit.ID.HEAVY);
-		spawnUnit(8, 10, Unit.ID.BASIC);
-		spawnUnit(5, 11, Unit.ID.MAGIC);
-		spawnUnit(7, 13, Unit.ID.RANGED);
-		spawnUnit(10, 14, Unit.ID.BASIC);
+		spawnUnit(7, 2, Unit.ID.HEAVY, false);
+		spawnUnit(4, 3, Unit.ID.RANGED, false);
+		spawnUnit(6, 5, Unit.ID.BASIC, false);
+		spawnUnit(5, 7, Unit.ID.RANGED, false);
+		spawnUnit(7, 8, Unit.ID.HEAVY, false);
+		spawnUnit(8, 10, Unit.ID.BASIC, false);
+		spawnUnit(5, 11, Unit.ID.MAGIC, false);
+		spawnUnit(7, 13, Unit.ID.RANGED, false);
+		spawnUnit(10, 14, Unit.ID.BASIC, false);
 	}
 
 	@Override

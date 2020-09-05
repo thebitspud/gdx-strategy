@@ -17,19 +17,23 @@ public class EnemyAI extends Player {
 	public void initUnits() {
 		units.clear();
 
-		spawnUnit(13, 2, Unit.ID.BASIC);
-		spawnUnit(17, 3, Unit.ID.RANGED);
-		spawnUnit(14, 5, Unit.ID.BASIC);
-		spawnUnit(18, 5, Unit.ID.MAGIC);
-		spawnUnit(17, 8, Unit.ID.RANGED);
-		spawnUnit(15, 7, Unit.ID.HEAVY);
-		spawnUnit(16, 11, Unit.ID.BASIC);
-		spawnUnit(19, 12, Unit.ID.RANGED);
-		spawnUnit(16, 14, Unit.ID.HEAVY);
+		spawnUnit(13, 2, Unit.ID.BASIC, false);
+		spawnUnit(17, 3, Unit.ID.RANGED, false);
+		spawnUnit(14, 5, Unit.ID.BASIC, false);
+		spawnUnit(18, 5, Unit.ID.MAGIC, false);
+		spawnUnit(17, 8, Unit.ID.RANGED, false);
+		spawnUnit(15, 7, Unit.ID.HEAVY, false);
+		spawnUnit(16, 11, Unit.ID.BASIC, false);
+		spawnUnit(19, 12, Unit.ID.RANGED, false);
+		spawnUnit(16, 14, Unit.ID.HEAVY, false);
 	}
 
 	@Override
 	public void playTurn() {
+		if (getCurrentGold() > 100) {
+			spawnUnit(23, r.nextInt(16), Unit.ID.values()[r.nextInt(4)], true);
+		}
+
 		for(Unit unit: units) {
 			unit.nextTurn();
 

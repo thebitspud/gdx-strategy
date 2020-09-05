@@ -17,7 +17,7 @@ public class Unit extends Sprite {
 	private final World world;
 	private Player player;
 
-	private int tileX, tileY, health, maxHealth, agility, attack, range;
+	private int tileX, tileY, health, maxHealth, agility, attack, range, cost;
 	private boolean active, canMove, canAttack;
 	private final ID id;
 	private final HashMap<Point, Integer> moves;
@@ -37,24 +37,54 @@ public class Unit extends Sprite {
 		if(player.getAlliance() == Player.Alliance.BLUE) flip(true, false);
 	}
 
-	protected void setStats(int health, int agility, int range, int attack) {
+	protected void setStats(int health, int agility, int range, int attack, int cost) {
 		this.health = health;
 		this.maxHealth = health;
 		this.agility = agility;
 		this.range = range;
 		this.attack = attack;
+		this.cost = cost;
 	}
 
 	public enum ID {
-		BASIC (0),
-		RANGED (1),
-		MAGIC (2),
-		HEAVY (3);
+		BASIC (0, 10, 3, 1, 3, 50),
+		RANGED (1, 10, 3, 3, 2, 50),
+		MAGIC (2, 10, 2, 2, 4, 75),
+		HEAVY (3, 20, 2, 1, 4, 100);
 
-		private final int numID;
+		private final int numID, health, agility, range, attack, cost;
 
-		ID(int id) {
+		ID(int id, int health, int agility, int range, int attack, int cost) {
 			this.numID = id;
+			this.health = health;
+			this.agility = agility;
+			this.range = range;
+			this.attack = attack;
+			this.cost = cost;
+		}
+
+		public int getNumID() {
+			return numID;
+		}
+
+		public int getHealth() {
+			return health;
+		}
+
+		public int getAgility() {
+			return agility;
+		}
+
+		public int getRange() {
+			return range;
+		}
+
+		public int getAttack() {
+			return attack;
+		}
+
+		public int getCost() {
+			return cost;
 		}
 	}
 
@@ -126,8 +156,7 @@ public class Unit extends Sprite {
 	}
 
 	public void findMoves(int x, int y, int movesLeft) {
-		if (x < 0 || x > world.width - 1) return;
-		if (y < 0 || y > world.height - 1) return;
+		if (x < 0 || x > world.width - 1 || y < 0 || y > world.height - 1) return;
 		if (world.getUnit(x, y) != null)
 			if (world.getUnit(x, y).getAlliance() != getAlliance()) return;
 		if (world.getTile(x, y).isSolid()) return;
@@ -155,6 +184,8 @@ public class Unit extends Sprite {
 		enemy.adjustHealth(-attack);
 		canAttack = false;
 		canMove = false;
+
+		if (enemy.isDead()) player.adjustGold(enemy.getCost() / 2);
 	}
 
 	public Unit getTarget() {
@@ -215,6 +246,10 @@ public class Unit extends Sprite {
 
 	public int getAgility() {
 		return agility;
+	}
+
+	public int getCost() {
+		return cost;
 	}
 
 	public Player.Alliance getAlliance() {

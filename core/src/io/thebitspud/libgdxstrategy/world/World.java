@@ -23,6 +23,7 @@ public class World {
 	public OrthographicCamera mapCamera;
 	public MapInput mapInput;
 	private final ArrayList<Player> players;
+	public User user;
 
 	public int width, height, tileSize, gameTurn, maxTurns, lastPlayer;
 
@@ -45,12 +46,14 @@ public class World {
 		gameTurn = 0;
 		maxTurns = -1;
 		lastPlayer = -1;
+		app.gameScreen.chosenUnit = null;
 
-		nextTurn();
 		players.clear();
-		players.add(new User(100, app));
+		players.add(user = new User(100, app));
 		players.add(new EnemyAI(100, app));
+
 		nextPlayer();
+		nextTurn();
 	}
 
 	public void tick(float delta) {
@@ -104,8 +107,14 @@ public class World {
 	public void nextTurn() {
 		gameTurn += 1;
 		mapInput.selectedUnit = null;
-		String turnText = "Turn " + gameTurn + ((maxTurns > 0) ? "/" + maxTurns : "");
-		app.gameScreen.turnInfo.setText(turnText);
+
+		for (Player p: players) p.adjustGold(25);
+	}
+
+	public void updateTurnInfo() {
+		String goldText = user.getCurrentGold() + " Gold";
+		String turnText = "\nTurn " + gameTurn + ((maxTurns > 0) ? "/" + maxTurns : "");
+		app.gameScreen.turnInfo.setText(goldText + turnText);
 	}
 
 	public int getTileID(int x, int y) {
