@@ -30,10 +30,6 @@ public class EnemyAI extends Player {
 
 	@Override
 	public void playTurn() {
-		if (getCurrentGold() > 100) {
-			spawnUnit(23, r.nextInt(16), Unit.ID.values()[r.nextInt(4)], true);
-		}
-
 		for(Unit unit: units) {
 			unit.nextTurn();
 
@@ -58,6 +54,10 @@ public class EnemyAI extends Player {
 
 			target = unit.getTarget();
 			if (target != null) unit.attack(target);
+		}
+
+		if (getCurrentGold() > 100) {
+			spawnUnit(23, r.nextInt(16), Unit.ID.values()[r.nextInt(4)], true);
 		}
 
 		app.gameScreen.world.nextPlayer();

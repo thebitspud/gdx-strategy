@@ -59,7 +59,9 @@ public class MapInput implements InputProcessor {
 
 	public void render() {
 		highlightTiles();
-		displayTileInfo();
+		if (app.gameScreen.chosenUnit != null)
+			app.gameScreen.tileInfo.setText(app.gameScreen.chosenUnit.getStats());
+		else displayTileInfo();
 	}
 
 	public void highlightTiles() {
@@ -98,8 +100,9 @@ public class MapInput implements InputProcessor {
 		String coordText = "[" + hoveredTileX + "," + hoveredTileY + "]";
 		String tileText = tile.getTileInfo();
 		String unitText = (unit == null) ? "" : "\n\n" + unit.getUnitInfo();
+		String playerText = (unit == null) ? "" : "\n\n" + unit.player.getPlayerInfo();
 
-		app.gameScreen.tileInfo.setText(coordText + tileText + unitText);
+		app.gameScreen.tileInfo.setText(coordText + tileText + unitText + playerText);
 	}
 
 	@Override

@@ -51,8 +51,8 @@ public class World {
 		app.gameScreen.chosenUnit = null;
 
 		players.clear();
-		players.add(user = new User(-25, app));
-		players.add(new EnemyAI(-25, app));
+		players.add(user = new User(-20, app));
+		players.add(new EnemyAI(40, app));
 
 		nextPlayer();
 		nextTurn();
@@ -116,13 +116,14 @@ public class World {
 		gameTurn += 1;
 		mapInput.selectedUnit = null;
 
-		for (Player p: players) p.adjustGold(25);
+		for (Player p: players) p.adjustGold(20);
 	}
 
 	public void updateTurnInfo() {
 		String goldText = user.getCurrentGold() + " Gold";
 		String turnText = "\nTurn " + gameTurn + ((maxTurns > 0) ? "/" + maxTurns : "");
 		app.gameScreen.turnInfo.setText(goldText + turnText);
+		app.gameScreen.updateButtonStates();
 	}
 
 	public int getTileID(int x, int y) {

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -69,23 +70,26 @@ public class GameScreen implements Screen {
 		});
 		endTurnButton.setPosition(Gdx.graphics.getWidth() - 115, 25);
 
+		// unit buy buttons (code is messy but it gets the job done)
+
 		for (int i = 0; i < Unit.ID.values().length; i++) {
 			ImageButton.ImageButtonStyle style = app.assets.getButtonStyle(app.assets.buttons[15]);
 			style.imageChecked = app.assets.buttons[15][2];
-			ImageButton unitButton = new ImageButton(style);
-			final Unit.ID id = Unit.ID.values()[i];
+			style.imageDisabled = app.assets.buttons[15][0].tint(new Color(1, 0.5f, 0.5f, 1f));
+
+			final ImageButton unitButton = new ImageButton(style);
+			final int index = i;
 			unitButton.addListener(new JInputListener() {
 				@Override
 				public void onClick() {
-					world.mapInput.selectedUnit = null;
-					chosenUnit = id;
+					pickUnit(index);
 				}
 			});
 			unitButton.setPosition(Gdx.graphics.getWidth() - 115, Gdx.graphics.getHeight() - (225 + i * 120));
 
 			Label costText = new Label("", app.assets.largeTextStyle);
 			costText.setAlignment(Align.bottom);
-			costText.setText(id.getCost() + "G");
+			costText.setText(Unit.ID.values()[index].getCost() + "G");
 			costText.setPosition(Gdx.graphics.getWidth() - 70, Gdx.graphics.getHeight() - (225 + i * 120));
 
 			unitButtonGroup.add(unitButton);
@@ -99,6 +103,22 @@ public class GameScreen implements Screen {
 		hud.addActor(endTurnButton);
 	}
 
+	private void pickUnit(int index) {
+		final Unit.ID id = Unit.ID.values()[index];
+		world.mapInput.selectedUnit = null;
+		if(id.getCost() <= world.user.getCurrentGold()) {
+			chosenUnit = id;
+			((ImageButton) unitButtonGroup.getButtons().get(index)).setChecked(true);
+		} else unitButtonGroup.uncheckAll();
+	}
+
+	public void updateButtonStates() {
+		for(int i = 0; i < unitButtonGroup.getButtons().size; i++) {
+			ImageButton button = ((ImageButton) unitButtonGroup.getButtons().get(i));
+			button.setDisabled(world.user.getCurrentGold() < Unit.ID.values()[i].getCost());
+		}
+	}
+
 	@Override
 	public void show() {
 		if(world.height == 0) world.init("testlevel.tmx");
@@ -106,9 +126,19 @@ public class GameScreen implements Screen {
 		unitButtonGroup.uncheckAll();
 	}
 
+	private void checkInput() {
+		if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) app.setScreen(app.pauseScreen);
+		if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) world.nextPlayer();
+
+		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) pickUnit(0);
+		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) pickUnit(1);
+		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) pickUnit(2);
+		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)) pickUnit(3);
+	}
+
 	@Override
 	public void render(float delta) {
-		if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) app.setScreen(app.pauseScreen);
+		checkInput();
 
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);

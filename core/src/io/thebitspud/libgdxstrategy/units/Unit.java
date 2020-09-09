@@ -10,12 +10,13 @@ import io.thebitspud.libgdxstrategy.players.User;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
 import java.awt.*;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class Unit extends Sprite {
 	private final StrategyGame app;
 	private final World world;
-	private Player player;
+	public Player player;
 
 	private int tileX, tileY, health, maxHealth, agility, attack, range, cost;
 	private boolean active, canMove, canAttack;
@@ -23,7 +24,8 @@ public class Unit extends Sprite {
 	private final HashMap<Point, Integer> moves;
 
 	public Unit(int x, int y, ID id, Player player, StrategyGame app) {
-		super(app.assets.units[id.numID][(player.getAlliance() == Player.Alliance.RED) ? 0 : 1]);
+		super(app.assets.units[Arrays.asList(ID.values()).indexOf(id)]
+				[(player.getAlliance() == Player.Alliance.RED) ? 0 : 1]);
 		this.tileX = x;
 		this.tileY = y;
 		this.app = app;
@@ -52,19 +54,14 @@ public class Unit extends Sprite {
 		MAGIC (2, 10, 2, 2, 4, 75),
 		HEAVY (3, 20, 2, 1, 4, 100);
 
-		private final int numID, health, agility, range, attack, cost;
+		private final int health, agility, range, attack, cost;
 
 		ID(int id, int health, int agility, int range, int attack, int cost) {
-			this.numID = id;
 			this.health = health;
 			this.agility = agility;
 			this.range = range;
 			this.attack = attack;
 			this.cost = cost;
-		}
-
-		public int getNumID() {
-			return numID;
 		}
 
 		public int getHealth() {
@@ -85,6 +82,12 @@ public class Unit extends Sprite {
 
 		public int getCost() {
 			return cost;
+		}
+
+		public String getStats() {
+			String healthText = "\nHP: " + health;
+			String statsText = "\nAgility: " + agility + "\nRange: " + range + "\nAttack: " + attack;
+			return "Unit." + this + healthText + statsText;
 		}
 	}
 
@@ -224,8 +227,7 @@ public class Unit extends Sprite {
 	public String getUnitInfo() {
 		String healthText = "\nHP: " + health + "/" + maxHealth;
 		String statsText = "\nAgility: " + agility + "\nRange: " + range + "\nAttack: " + attack;
-		String playerText = "\n\n" + player.getPlayerInfo();
-		return "Unit." + id + healthText + statsText + playerText;
+		return "Unit." + id + healthText + statsText;
 	}
 
 	public boolean moveAvailable() {

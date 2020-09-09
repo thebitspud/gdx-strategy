@@ -65,7 +65,7 @@ public class WinScreen implements Screen {
 		if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) app.setScreen(app.titleScreen);
 		if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) app.setScreen(app.titleScreen);
 
-		Gdx.gl.glClearColor(0.1f, 0.7f, 0.1f, 1);
+		Gdx.gl.glClearColor(0.2f, 0.6f, 0.2f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 		stage.act();
