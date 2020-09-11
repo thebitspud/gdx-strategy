@@ -82,7 +82,7 @@ public class GameScreen implements Screen {
 			unitButton.addListener(new JInputListener() {
 				@Override
 				public void onClick() {
-					pickUnit(index);
+					pickUnit(index, false);
 				}
 			});
 			unitButton.setPosition(Gdx.graphics.getWidth() - 115, Gdx.graphics.getHeight() - (225 + i * 120));
@@ -103,13 +103,17 @@ public class GameScreen implements Screen {
 		hud.addActor(endTurnButton);
 	}
 
-	private void pickUnit(int index) {
-		final Unit.ID id = Unit.ID.values()[index];
+	private void pickUnit(int index, boolean keyInput) {
+		Unit.ID id = Unit.ID.values()[index];
+		ImageButton unitButton = ((ImageButton) unitButtonGroup.getButtons().get(index));
+
 		world.mapInput.selectedUnit = null;
 		if(id.getCost() <= world.user.getCurrentGold()) {
 			chosenUnit = id;
-			((ImageButton) unitButtonGroup.getButtons().get(index)).setChecked(true);
+			if (keyInput) unitButton.setChecked(!unitButton.isChecked());
 		} else unitButtonGroup.uncheckAll();
+
+		if (!unitButton.isChecked()) chosenUnit = null;
 	}
 
 	public void updateButtonStates() {
@@ -117,6 +121,15 @@ public class GameScreen implements Screen {
 			ImageButton button = ((ImageButton) unitButtonGroup.getButtons().get(i));
 			button.setDisabled(world.user.getCurrentGold() < Unit.ID.values()[i].getCost());
 		}
+	}
+
+	public int getHoveredButtonIndex() {
+		for(int i = 0; i < unitButtonGroup.getButtons().size; i++) {
+			ImageButton button = (ImageButton) unitButtonGroup.getButtons().get(i);
+			if (button.getClickListener().isOver()) return i;
+		}
+
+		return -1;
 	}
 
 	@Override
@@ -130,10 +143,10 @@ public class GameScreen implements Screen {
 		if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) app.setScreen(app.pauseScreen);
 		if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) world.nextPlayer();
 
-		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) pickUnit(0);
-		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) pickUnit(1);
-		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) pickUnit(2);
-		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)) pickUnit(3);
+		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) pickUnit(0, true);
+		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) pickUnit(1, true);
+		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) pickUnit(2, true);
+		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)) pickUnit(3, true);
 	}
 
 	@Override

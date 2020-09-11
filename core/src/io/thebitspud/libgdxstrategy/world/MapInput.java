@@ -59,9 +59,7 @@ public class MapInput implements InputProcessor {
 
 	public void render() {
 		highlightTiles();
-		if (app.gameScreen.chosenUnit != null)
-			app.gameScreen.tileInfo.setText(app.gameScreen.chosenUnit.getStats());
-		else displayTileInfo();
+		displayTileInfo();
 	}
 
 	public void highlightTiles() {
@@ -78,7 +76,8 @@ public class MapInput implements InputProcessor {
 			Vector2 originOffset = world.getTileOffset(0, 0);
 			for (int i = 0; i < world.height; i++) {
 				float yPosition = originOffset.y - (i * scale);
-				app.batch.draw(app.assets.highlights[6], originOffset.x, yPosition, scale, scale);
+				if (world.getUnit(0, i) == null)
+					app.batch.draw(app.assets.highlights[6], originOffset.x, yPosition, scale, scale);
 			}
 		}
 
@@ -90,7 +89,10 @@ public class MapInput implements InputProcessor {
 
 	private void displayTileInfo() {
 		if (hoveredTileX < 0 || hoveredTileY < 0) {
-			app.gameScreen.tileInfo.setText("");
+			int index = app.gameScreen.getHoveredButtonIndex();
+			if (index >= 0) app.gameScreen.tileInfo.setText(Unit.ID.values()[index].getStats());
+			else app.gameScreen.tileInfo.setText("");
+
 			return;
 		}
 
