@@ -1,7 +1,7 @@
 package io.thebitspud.libgdxstrategy.players;
 
 import io.thebitspud.libgdxstrategy.StrategyGame;
-import io.thebitspud.libgdxstrategy.units.Unit;
+import io.thebitspud.libgdxstrategy.world.Unit;
 
 public class User extends Player {
 	public User(int startingGold, StrategyGame app) {

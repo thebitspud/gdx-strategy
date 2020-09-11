@@ -1,8 +1,8 @@
 package io.thebitspud.libgdxstrategy.players;
 
 import io.thebitspud.libgdxstrategy.StrategyGame;
+import io.thebitspud.libgdxstrategy.world.Unit;
 import io.thebitspud.libgdxstrategy.world.World;
-import io.thebitspud.libgdxstrategy.units.*;
 
 import java.util.ArrayList;
 
@@ -45,27 +45,12 @@ public abstract class Player {
 		if(world.getUnit(x, y) != null) return;
 		if (world.getTile(x, y).isSolid()) return;
 
-		Unit unit;
-
-		switch (id) {
-			case RANGED:
-				unit = new RangedUnit(x, y, this, app);
-				break;
-			case MAGIC:
-				unit = new MagicUnit(x, y, this, app);
-				break;
-			case HEAVY:
-				unit = new HeavyUnit(x, y, this, app);
-				break;
-			case BASIC:
-			default:
-				unit = new BasicUnit(x, y, this, app);
-		}
+		Unit unit = new Unit(x, y, id, this, app);
 
 		if (mustBuy) {
-			if (gold >= unit.getCost()) {
+			if (gold >= unit.getID().getCost()) {
 				units.add(unit);
-				adjustGold(-unit.getCost());
+				adjustGold(-unit.getID().getCost());
 			}
 		} else units.add(unit);
 	}

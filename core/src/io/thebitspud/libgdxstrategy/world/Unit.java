@@ -1,11 +1,10 @@
-package io.thebitspud.libgdxstrategy.units;
+package io.thebitspud.libgdxstrategy.world;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 import io.thebitspud.libgdxstrategy.StrategyGame;
 import io.thebitspud.libgdxstrategy.players.Player;
-import io.thebitspud.libgdxstrategy.world.World;
 import io.thebitspud.libgdxstrategy.players.User;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
@@ -16,9 +15,9 @@ import java.util.HashMap;
 public class Unit extends Sprite {
 	private final StrategyGame app;
 	private final World world;
-	public Player player;
+	private final Player player;
 
-	private int tileX, tileY, health, maxHealth, agility, attack, range, cost;
+	private int tileX, tileY, currentHealth;
 	private boolean active, canMove, canAttack;
 	private final ID id;
 	private final HashMap<Point, Integer> moves;
@@ -31,6 +30,7 @@ public class Unit extends Sprite {
 		this.app = app;
 		this.player = player;
 		this.id = id;
+		this.currentHealth = id.maxHealth;
 
 		world = app.gameScreen.world;
 		active = true;
@@ -39,25 +39,16 @@ public class Unit extends Sprite {
 		if(player.getAlliance() == Player.Alliance.BLUE) flip(true, false);
 	}
 
-	protected void setStats(int health, int agility, int range, int attack, int cost) {
-		this.health = health;
-		this.maxHealth = health;
-		this.agility = agility;
-		this.range = range;
-		this.attack = attack;
-		this.cost = cost;
-	}
-
 	public enum ID {
-		BASIC (0, 10, 3, 1, 3, 50),
-		RANGED (1, 10, 3, 3, 2, 50),
-		MAGIC (2, 10, 2, 2, 4, 75),
-		HEAVY (3, 20, 2, 1, 4, 100);
+		BASIC (10, 3, 1, 3, 50),
+		RANGED (10, 3, 3, 2, 50),
+		MAGIC (10, 2, 2, 4, 75),
+		HEAVY (20, 2, 1, 4, 100);
 
-		private final int health, agility, range, attack, cost;
+		private final int maxHealth, agility, range, attack, cost;
 
-		ID(int id, int health, int agility, int range, int attack, int cost) {
-			this.health = health;
+		ID(int maxHealth, int agility, int range, int attack, int cost) {
+			this.maxHealth = maxHealth;
 			this.agility = agility;
 			this.range = range;
 			this.attack = attack;
@@ -65,7 +56,7 @@ public class Unit extends Sprite {
 		}
 
 		public int getHealth() {
-			return health;
+			return maxHealth;
 		}
 
 		public int getAgility() {
@@ -85,7 +76,7 @@ public class Unit extends Sprite {
 		}
 
 		public String getStats() {
-			String healthText = "\nHP: " + health;
+			String healthText = "\nHP: " + maxHealth;
 			String statsText = "\nAgility: " + agility + "\nRange: " + range + "\nAttack: " + attack;
 			return "Unit." + this + healthText + statsText;
 		}
@@ -116,7 +107,7 @@ public class Unit extends Sprite {
 
 	public void drawAvailableMoves() {
 		float scale = world.tileSize / world.mapCamera.zoom;
-		int searchRadius = Math.max(agility * 2 + 1, range);
+		int searchRadius = Math.max(id.agility * 2 + 1, id.range);
 		boolean attackAvailable = false;
 
 		moves.clear();
@@ -155,7 +146,7 @@ public class Unit extends Sprite {
 	}
 
 	public void findMoves() {
-		findMoves(tileX, tileY, agility * 2 + 1);
+		findMoves(tileX, tileY, id.agility * 2 + 1);
 	}
 
 	public void findMoves(int x, int y, int movesLeft) {
@@ -184,17 +175,17 @@ public class Unit extends Sprite {
 	public void attack(Unit enemy) {
 		if (!canAttackEnemy(enemy)) return;
 
-		enemy.adjustHealth(-attack);
+		enemy.adjustHealth(-id.attack);
 		canAttack = false;
 		canMove = false;
 
-		if (enemy.isDead()) player.adjustGold(enemy.getCost() / 2);
+		if (enemy.isDead()) player.adjustGold(enemy.id.getCost() / 2);
 	}
 
 	public Unit getTarget() {
 		if (!canAttack) return null;
-		for (int x = -range; x < range + 1; x++) {
-			for (int y = -range; y < range + 1; y++) {
+		for (int x = -id.range; x < id.range + 1; x++) {
+			for (int y = -id.range; y < id.range + 1; y++) {
 				Unit enemy = world.getUnit(tileX + x, tileY + y);
 				if (canAttackEnemy(enemy)) return enemy;
 			}
@@ -211,22 +202,22 @@ public class Unit extends Sprite {
 		int diffX = Math.abs(tileX - enemy.getTileX());
 		int diffY = Math.abs(tileY - enemy.getTileY());
 
-		return 2 * (diffX + diffY) - Math.min(diffX, diffY) <= (range * 2 + 1);
+		return 2 * (diffX + diffY) - Math.min(diffX, diffY) <= (id.range * 2 + 1);
 	}
 
 	public void adjustHealth(int value) {
-		health += value;
+		currentHealth += value;
 
-		if (health > maxHealth) health = maxHealth;
-		else if (health <= 0) {
-			health = 0;
+		if (currentHealth > id.maxHealth) currentHealth = id.maxHealth;
+		else if (currentHealth <= 0) {
+			currentHealth = 0;
 			active = false;
 		}
 	}
 
 	public String getUnitInfo() {
-		String healthText = "\nHP: " + health + "/" + maxHealth;
-		String statsText = "\nAgility: " + agility + "\nRange: " + range + "\nAttack: " + attack;
+		String healthText = "\nHP: " + currentHealth + "/" + id.maxHealth;
+		String statsText = "\nAgility: " + id.agility + "\nRange: " + id.range + "\nAttack: " + id.attack;
 		return "Unit." + id + healthText + statsText;
 	}
 
@@ -243,23 +234,23 @@ public class Unit extends Sprite {
 	}
 
 	public float getHealthPercent() {
-		return (float) health / maxHealth * 100;
+		return (float) currentHealth / id.maxHealth * 100;
 	}
 
-	public int getAgility() {
-		return agility;
+	public ID getID() {
+		return id;
 	}
 
-	public int getCost() {
-		return cost;
-	}
-
-	public Player.Alliance getAlliance() {
-		return player.getAlliance();
+	public Player getPlayer() {
+		return player;
 	}
 
 	public boolean isUserUnit() {
 		return player.getClass() == User.class;
+	}
+
+	public Player.Alliance getAlliance() {
+		return player.getAlliance();
 	}
 
 	public boolean hasAvailableAction() {

@@ -1,7 +1,7 @@
 package io.thebitspud.libgdxstrategy.players;
 
 import io.thebitspud.libgdxstrategy.StrategyGame;
-import io.thebitspud.libgdxstrategy.units.Unit;
+import io.thebitspud.libgdxstrategy.world.Unit;
 
 import java.util.Random;
 
@@ -34,6 +34,7 @@ public class EnemyAI extends Player {
 			unit.nextTurn();
 
 			Unit target = unit.getTarget();
+			int agi = unit.getID().getAgility();
 			if (target != null) {
 				unit.attack(target);
 				continue;
@@ -44,11 +45,11 @@ public class EnemyAI extends Player {
 				if (!unit.moveAvailable()) break;
 
 				int nextX = unit.getTileX();
-				if (unit.getTileX() < 2) nextX += r.nextInt(unit.getAgility() + 1);
-				else if (unit.getTileX() > 8) nextX -= r.nextInt(unit.getAgility() + 1);
-				else nextX += r.nextInt(unit.getAgility() * 2 + 1) - unit.getAgility();
+				if (unit.getTileX() < 2) nextX += r.nextInt(agi + 1);
+				else if (unit.getTileX() > 8) nextX -= r.nextInt(agi + 1);
+				else nextX += r.nextInt(agi * 2 + 1) - agi;
 
-				int nextY = unit.getTileY() + r.nextInt(unit.getAgility() * 2 + 1) - unit.getAgility();
+				int nextY = unit.getTileY() + r.nextInt(agi * 2 + 1) - agi;
 				unit.move(nextX, nextY);
 			}
 

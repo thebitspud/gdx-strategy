@@ -6,7 +6,6 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import io.thebitspud.libgdxstrategy.StrategyGame;
-import io.thebitspud.libgdxstrategy.units.Unit;
 
 public class MapInput implements InputProcessor {
 	private final StrategyGame app;
@@ -102,7 +101,7 @@ public class MapInput implements InputProcessor {
 		String coordText = "[" + hoveredTileX + "," + hoveredTileY + "]";
 		String tileText = tile.getTileInfo();
 		String unitText = (unit == null) ? "" : "\n\n" + unit.getUnitInfo();
-		String playerText = (unit == null) ? "" : "\n\n" + unit.player.getPlayerInfo();
+		String playerText = (unit == null) ? "" : "\n\n" + unit.getPlayer().getPlayerInfo();
 
 		app.gameScreen.tileInfo.setText(coordText + tileText + unitText + playerText);
 	}
