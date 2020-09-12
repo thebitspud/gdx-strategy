@@ -36,7 +36,7 @@ public enum Tile {
 	}
 
 	enum MovementProfile {
-		FAST, // free movement
+		FAST, // full movement
 		SLOW, // reduced movement
 		NONE, // no movement
 	}

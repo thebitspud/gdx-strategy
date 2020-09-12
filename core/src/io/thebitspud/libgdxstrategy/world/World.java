@@ -1,7 +1,6 @@
 package io.thebitspud.libgdxstrategy.world;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
@@ -13,7 +12,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import io.thebitspud.libgdxstrategy.StrategyGame;
 import io.thebitspud.libgdxstrategy.players.*;
-import space.earlygrey.shapedrawer.ShapeDrawer;
 
 import java.util.ArrayList;
 
@@ -70,15 +68,9 @@ public class World {
 		mapRenderer.render();
 
 		app.batch.begin();
+
 		for (Player player: players) player.render();
 		mapInput.render();
-
-		ShapeDrawer drawer = new ShapeDrawer(app.batch, app.assets.pixel);
-		int hudX = Gdx.graphics.getWidth() - 140;
-		drawer.filledRectangle(hudX, 0, 140, Gdx.graphics.getHeight(), Color.DARK_GRAY);
-		drawer.filledRectangle(hudX - 3, 0, 3, Gdx.graphics.getHeight(), Color.BLACK);
-
-		app.batch.end();
 	}
 
 	public void endGame(boolean victory) {

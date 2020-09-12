@@ -67,7 +67,7 @@ public class MapInput implements InputProcessor {
 		int index = leftDown ? 1 : 0;
 
 		if (selectedUnit != null) {
-			selectedUnit.drawAvailableMoves();
+			selectedUnit.drawAvailableActions();
 			app.batch.draw(app.assets.highlights[4], selectedUnit.getX(), selectedUnit.getY(), scale, scale);
 		}
 

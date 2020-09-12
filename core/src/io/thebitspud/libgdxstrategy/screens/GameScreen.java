@@ -17,6 +17,7 @@ import io.thebitspud.libgdxstrategy.StrategyGame;
 import io.thebitspud.libgdxstrategy.world.Unit;
 import io.thebitspud.libgdxstrategy.world.World;
 import io.thebitspud.libgdxstrategy.tools.JInputListener;
+import space.earlygrey.shapedrawer.ShapeDrawer;
 
 public class GameScreen implements Screen {
 	private final StrategyGame app;
@@ -25,7 +26,7 @@ public class GameScreen implements Screen {
 	private final Stage hud;
 	private final InputMultiplexer multiplexer;
 	public Label tileInfo, turnInfo;
-	public ButtonGroup unitButtonGroup;
+	public ButtonGroup<ImageButton> unitButtonGroup;
 	public Unit.ID chosenUnit;
 
 	public GameScreen(StrategyGame app) {
@@ -35,7 +36,7 @@ public class GameScreen implements Screen {
 		final OrthographicCamera camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		hud = new Stage(new ScreenViewport(camera));
 		multiplexer = new InputMultiplexer(hud, world.mapInput);
-		unitButtonGroup = new ButtonGroup();
+		unitButtonGroup = new ButtonGroup<>();
 		unitButtonGroup.setMaxCheckCount(1);
 		unitButtonGroup.setMinCheckCount(0);
 		unitButtonGroup.setUncheckLast(true);
@@ -105,7 +106,7 @@ public class GameScreen implements Screen {
 
 	private void pickUnit(int index, boolean keyInput) {
 		Unit.ID id = Unit.ID.values()[index];
-		ImageButton unitButton = ((ImageButton) unitButtonGroup.getButtons().get(index));
+		ImageButton unitButton = unitButtonGroup.getButtons().get(index);
 
 		world.mapInput.selectedUnit = null;
 		if(id.getCost() <= world.user.getCurrentGold()) {
@@ -117,17 +118,13 @@ public class GameScreen implements Screen {
 	}
 
 	public void updateButtonStates() {
-		for(int i = 0; i < unitButtonGroup.getButtons().size; i++) {
-			ImageButton button = ((ImageButton) unitButtonGroup.getButtons().get(i));
-			button.setDisabled(world.user.getCurrentGold() < Unit.ID.values()[i].getCost());
-		}
+		for(int i = 0; i < unitButtonGroup.getButtons().size; i++)
+			unitButtonGroup.getButtons().get(i).setDisabled(world.user.getCurrentGold() < Unit.ID.values()[i].getCost());
 	}
 
 	public int getHoveredButtonIndex() {
-		for(int i = 0; i < unitButtonGroup.getButtons().size; i++) {
-			ImageButton button = (ImageButton) unitButtonGroup.getButtons().get(i);
-			if (button.getClickListener().isOver()) return i;
-		}
+		for(int i = 0; i < unitButtonGroup.getButtons().size; i++)
+			if (unitButtonGroup.getButtons().get(i).getClickListener().isOver()) return i;
 
 		return -1;
 	}
@@ -158,6 +155,13 @@ public class GameScreen implements Screen {
 
 		world.tick(delta);
 		world.render();
+
+//		ShapeDrawer drawer = new ShapeDrawer(app.batch, app.assets.pixel);
+//		int hudX = Gdx.graphics.getWidth() - 140;
+//		drawer.filledRectangle(hudX, 0, 140, Gdx.graphics.getHeight(), Color.DARK_GRAY);
+//		drawer.filledRectangle(hudX - 3, 0, 3, Gdx.graphics.getHeight(), Color.BLACK);
+
+		app.batch.end();
 
 		hud.act();
 		hud.draw();

@@ -13,32 +13,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 public class Unit extends Sprite {
-	private final StrategyGame app;
-	private final World world;
-	private final Player player;
-
-	private int tileX, tileY, currentHealth;
-	private boolean active, canMove, canAttack;
-	private final ID id;
-	private final HashMap<Point, Integer> moves;
-
-	public Unit(int x, int y, ID id, Player player, StrategyGame app) {
-		super(app.assets.units[Arrays.asList(ID.values()).indexOf(id)]
-				[(player.getAlliance() == Player.Alliance.RED) ? 0 : 1]);
-		this.tileX = x;
-		this.tileY = y;
-		this.app = app;
-		this.player = player;
-		this.id = id;
-		this.currentHealth = id.maxHealth;
-
-		world = app.gameScreen.world;
-		active = true;
-		moves = new HashMap<>();
-
-		if(player.getAlliance() == Player.Alliance.BLUE) flip(true, false);
-	}
-
 	public enum ID {
 		BASIC (10, 3, 1, 3, 50),
 		RANGED (10, 3, 3, 2, 50),
@@ -55,7 +29,7 @@ public class Unit extends Sprite {
 			this.cost = cost;
 		}
 
-		public int getHealth() {
+		public int getMaxHealth() {
 			return maxHealth;
 		}
 
@@ -82,6 +56,32 @@ public class Unit extends Sprite {
 		}
 	}
 
+	private final StrategyGame app;
+	private final World world;
+	private final Player player;
+
+	private int tileX, tileY, currentHealth;
+	private boolean active, canMove, canAttack;
+	private final ID id;
+	private final HashMap<Point, Integer> moves;
+
+	public Unit(int x, int y, ID id, Player player, StrategyGame app) {
+		super(app.assets.units[Arrays.asList(ID.values()).indexOf(id)]
+				[(player.getAlliance() == Player.Alliance.RED) ? 0 : 1]);
+		this.tileX = x;
+		this.tileY = y;
+		this.app = app;
+		this.player = player;
+		this.id = id;
+		this.currentHealth = id.maxHealth;
+
+		world = app.gameScreen.world;
+		active = true;
+		moves = new HashMap<>();
+
+		if(player.getAlliance() == Player.Alliance.BLUE) flip(true, false);
+	}
+
 	public void update() {
 		Vector2 offset = world.getTileOffset(tileX, tileY);
 		setPosition(offset.x, offset.y);
@@ -105,7 +105,7 @@ public class Unit extends Sprite {
 		drawer.filledRectangle(getX(), getY(), barWidth, 3 / world.mapCamera.zoom);
 	}
 
-	public void drawAvailableMoves() {
+	public void drawAvailableActions() {
 		float scale = world.tileSize / world.mapCamera.zoom;
 		int searchRadius = Math.max(id.agility * 2 + 1, id.range);
 		boolean attackAvailable = false;
@@ -139,12 +139,6 @@ public class Unit extends Sprite {
 		if (getTarget() == null) canAttack = false;
 	}
 
-	public boolean canMoveToTile(int x, int y) {
-		if (!canMove) return false;
-		if (world.getUnit(x, y) != null) return false;
-		return moves.containsKey(new Point(x, y));
-	}
-
 	public void findMoves() {
 		findMoves(tileX, tileY, id.agility * 2 + 1);
 	}
@@ -170,6 +164,12 @@ public class Unit extends Sprite {
 
 			findMoves(nextX, nextY, movesLeft - moveRequirement);
 		}
+	}
+
+	public boolean canMoveToTile(int x, int y) {
+		if (!canMove) return false;
+		if (world.getUnit(x, y) != null) return false;
+		return moves.containsKey(new Point(x, y));
 	}
 
 	public void attack(Unit enemy) {
