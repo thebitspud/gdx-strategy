@@ -107,7 +107,7 @@ public class Unit extends Sprite {
 
 		if(canAttack && !canMove) canAttack = (getTarget() != null);
 		if (getAlliance() == Player.Alliance.RED && hasAvailableAction())
-			app.batch.draw(app.assets.highlights[5], offset.x, offset.y, scale, scale);
+			app.batch.draw(app.assets.highlights[5], getX(), getY(), scale, scale);
 
 		draw(app.batch);
 		drawHealthBar();
@@ -152,6 +152,7 @@ public class Unit extends Sprite {
 		cell.setLocation(x, y);
 
 		int distance = (id.agility * 2 + 2) - Math.min(2, moves.get(new Point(x, y)));
+		moveTween.setTimeElapsed(0);
 		moveTween.setTimerDuration(distance / 8f);
 		moveTween.setActive(true);
 

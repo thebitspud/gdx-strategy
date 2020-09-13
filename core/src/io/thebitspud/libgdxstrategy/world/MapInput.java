@@ -86,9 +86,10 @@ public class MapInput implements InputProcessor {
 		}
 
 		Unit unit = world.getUnit(hoveredCell.x, hoveredCell.y);
-		if (unit != null && unit.isUserUnit()) index += unit.hasAvailableAction() ? 2 : 0;
-
-		app.batch.draw(app.assets.highlights[index], offset.x, offset.y, scale, scale);
+		if (unit != null && unit.isUserUnit()) {
+			index += unit.hasAvailableAction() ? 2 : 0;
+			app.batch.draw(app.assets.highlights[index], unit.getX(), unit.getY(), scale, scale);
+		} else app.batch.draw(app.assets.highlights[index], offset.x, offset.y, scale, scale);
 	}
 
 	private void displayTileInfo() {
