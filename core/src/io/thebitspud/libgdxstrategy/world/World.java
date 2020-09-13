@@ -25,6 +25,7 @@ public class World {
 	public User user;
 
 	public int width, height, tileSize, gameTurn, maxTurns, lastPlayer;
+	public boolean touchingMapEdgeX, touchingMapEdgeY;
 
 	public World(StrategyGame app) {
 		this.app = app;
@@ -41,6 +42,10 @@ public class World {
 		tileSize = map.getProperties().get("tilewidth", Integer.class);
 		width = map.getProperties().get("width", Integer.class);
 		height = map.getProperties().get("height", Integer.class);
+
+		mapCamera.zoom = 1;
+		mapCamera.position.x = 0;
+		mapCamera.position.y = width * tileSize;
 
 		gameTurn = 0;
 		maxTurns = -1;
@@ -80,14 +85,18 @@ public class World {
 	public void clampMap() {
 		Vector3 pos = mapCamera.position;
 
-		float maxZoom = Math.min((float) width * tileSize / Gdx.graphics.getWidth(),
-				(float) height * tileSize / Gdx.graphics.getHeight());
+		float widthMax = (float) width * tileSize / (Gdx.graphics.getWidth() - 143);
+		float heightMax = (float) height * tileSize / Gdx.graphics.getHeight();
+		float maxZoom = Math.min(widthMax, heightMax);
 		mapCamera.zoom = (float) MathUtils.clamp(mapCamera.zoom, 0.5, maxZoom);
 
 		float xHalf = Gdx.graphics.getWidth() * mapCamera.zoom / 2f;
 		float yHalf = Gdx.graphics.getHeight() * mapCamera.zoom / 2f;
 		float xLim = width * tileSize - xHalf + (143 * mapCamera.zoom);
 		float yLim = height * tileSize - yHalf;
+
+		touchingMapEdgeX = pos.x <= xHalf || pos.x > xLim;
+		touchingMapEdgeY = pos.y <= yHalf || pos.y > yLim;
 
 		pos.x = MathUtils.clamp(pos.x, xHalf, xLim);
 		pos.y = MathUtils.clamp(pos.y, yHalf, yLim);

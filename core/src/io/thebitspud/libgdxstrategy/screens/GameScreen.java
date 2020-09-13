@@ -156,11 +156,12 @@ public class GameScreen implements Screen {
 		world.tick(delta);
 		world.render();
 
-//		ShapeDrawer drawer = new ShapeDrawer(app.batch, app.assets.pixel);
-//		int hudX = Gdx.graphics.getWidth() - 140;
-//		drawer.filledRectangle(hudX, 0, 140, Gdx.graphics.getHeight(), Color.DARK_GRAY);
-//		drawer.filledRectangle(hudX - 3, 0, 3, Gdx.graphics.getHeight(), Color.BLACK);
+		ShapeDrawer drawer = new ShapeDrawer(app.batch, app.assets.pixel);
+		int hudX = Gdx.graphics.getWidth() - 140;
+		drawer.filledRectangle(hudX, 0, 140, Gdx.graphics.getHeight(), Color.DARK_GRAY);
+		drawer.filledRectangle(hudX - 3, 0, 3, Gdx.graphics.getHeight(), Color.BLACK);
 
+		// batch already started in world
 		app.batch.end();
 
 		hud.act();

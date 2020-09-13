@@ -52,8 +52,11 @@ public class MapInput implements InputProcessor {
 		Vector3 mousePos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
 		mousePos = world.mapCamera.unproject(mousePos);
 
-		hoveredTileX = (int) (mousePos.x / world.tileSize);
-		hoveredTileY = (int) (world.height - mousePos.y / world.tileSize);
+		// hovered tile does not update as long as the mouse is scrolling
+		if (!rightDown || Gdx.input.getDeltaX() == 0 || world.touchingMapEdgeX)
+			hoveredTileX = (int) (mousePos.x / world.tileSize);
+		if (!rightDown || Gdx.input.getDeltaY() == 0 || world.touchingMapEdgeY)
+			hoveredTileY = (int) (world.height - mousePos.y / world.tileSize);
 	}
 
 	public void render() {
@@ -179,6 +182,8 @@ public class MapInput implements InputProcessor {
 
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
+		if (Gdx.input.getX() > Gdx.graphics.getWidth() - 143) return false;
+
 		if (rightDown) {
 			float x = Gdx.input.getDeltaX() * world.mapCamera.zoom;
 			float y = Gdx.input.getDeltaY() * world.mapCamera.zoom;
@@ -196,6 +201,7 @@ public class MapInput implements InputProcessor {
 
 	@Override
 	public boolean scrolled(int amount) {
+		if (Gdx.input.getX() > Gdx.graphics.getWidth() - 143) return false;
 		world.mapCamera.zoom *= 1 + amount * 0.05f;
 		return true;
 	}
