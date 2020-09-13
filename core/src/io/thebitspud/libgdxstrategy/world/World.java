@@ -148,7 +148,7 @@ public class World {
 	public Unit getUnit(int x, int y) {
 		for (Player player: players)
 			for(Unit unit: player.units)
-				if(unit.getTileX() == x && unit.getTileY() == y)
+				if(unit.getCell().x == x && unit.getCell().y == y)
 					return unit;
 
 		return null;

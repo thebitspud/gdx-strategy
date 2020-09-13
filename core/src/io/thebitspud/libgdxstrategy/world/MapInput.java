@@ -7,12 +7,14 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import io.thebitspud.libgdxstrategy.StrategyGame;
 
+import java.awt.Point;
+
 public class MapInput implements InputProcessor {
 	private final StrategyGame app;
 	private final World world;
 	private final boolean[] keyPressed;
 	private boolean leftDown, rightDown;
-	private int hoveredTileX, hoveredTileY;
+	private Point hoveredCell;
 	public Unit selectedUnit;
 
 	public MapInput(StrategyGame app, World world) {
@@ -20,6 +22,7 @@ public class MapInput implements InputProcessor {
 		this.world = world;
 
 		keyPressed = new boolean[256];
+		hoveredCell = new Point(-1, -1);
 	}
 
 	public void tick(float delta) {
@@ -44,8 +47,7 @@ public class MapInput implements InputProcessor {
 
 	private void updateFocusedTile() {
 		if (Gdx.input.getX() > Gdx.graphics.getWidth() - 143) {
-			hoveredTileX = -1;
-			hoveredTileY = -1;
+			hoveredCell.setLocation(-1, -1);
 			return;
 		}
 
@@ -54,9 +56,9 @@ public class MapInput implements InputProcessor {
 
 		// hovered tile does not update as long as the mouse is scrolling
 		if (!rightDown || Gdx.input.getDeltaX() == 0 || world.touchingMapEdgeX)
-			hoveredTileX = (int) (mousePos.x / world.tileSize);
+			hoveredCell.x = (int) (mousePos.x / world.tileSize);
 		if (!rightDown || Gdx.input.getDeltaY() == 0 || world.touchingMapEdgeY)
-			hoveredTileY = (int) (world.height - mousePos.y / world.tileSize);
+			hoveredCell.y = (int) (world.height - mousePos.y / world.tileSize);
 	}
 
 	public void render() {
@@ -65,7 +67,7 @@ public class MapInput implements InputProcessor {
 	}
 
 	public void highlightTiles() {
-		Vector2 offset = world.getTileOffset(hoveredTileX, hoveredTileY);
+		Vector2 offset = world.getTileOffset(hoveredCell.x, hoveredCell.y);
 		float scale = world.tileSize / world.mapCamera.zoom;
 		int index = leftDown ? 1 : 0;
 
@@ -83,14 +85,14 @@ public class MapInput implements InputProcessor {
 			}
 		}
 
-		Unit unit = world.getUnit(hoveredTileX, hoveredTileY);
+		Unit unit = world.getUnit(hoveredCell.x, hoveredCell.y);
 		if (unit != null && unit.isUserUnit()) index += unit.hasAvailableAction() ? 2 : 0;
 
 		app.batch.draw(app.assets.highlights[index], offset.x, offset.y, scale, scale);
 	}
 
 	private void displayTileInfo() {
-		if (hoveredTileX < 0 || hoveredTileY < 0) {
+		if (hoveredCell.x < 0 || hoveredCell.y < 0) {
 			int index = app.gameScreen.getHoveredButtonIndex();
 			if (index >= 0) app.gameScreen.tileInfo.setText(Unit.ID.values()[index].getStats());
 			else app.gameScreen.tileInfo.setText("");
@@ -98,10 +100,10 @@ public class MapInput implements InputProcessor {
 			return;
 		}
 
-		Tile tile =  world.getTile(hoveredTileX, hoveredTileY);
-		Unit unit = world.getUnit(hoveredTileX, hoveredTileY);
+		Tile tile =  world.getTile(hoveredCell.x, hoveredCell.y);
+		Unit unit = world.getUnit(hoveredCell.x, hoveredCell.y);
 
-		String coordText = "[" + hoveredTileX + "," + hoveredTileY + "]";
+		String coordText = "[" + hoveredCell.x + "," + hoveredCell.y + "]";
 		String tileText = tile.getTileInfo();
 		String unitText = (unit == null) ? "" : "\n\n" + unit.getUnitInfo();
 		String playerText = (unit == null) ? "" : "\n\n" + unit.getPlayer().getPlayerInfo();
@@ -131,7 +133,7 @@ public class MapInput implements InputProcessor {
 		if (button == Input.Buttons.LEFT) {
 			leftDown = true;
 
-			Unit hoveredUnit = world.getUnit(hoveredTileX, hoveredTileY);
+			Unit hoveredUnit = world.getUnit(hoveredCell.x, hoveredCell.y);
 			if (hoveredUnit != null) {
 				app.gameScreen.chosenUnit = null;
 				app.gameScreen.unitButtonGroup.uncheckAll();
@@ -146,10 +148,10 @@ public class MapInput implements InputProcessor {
 						return true;
 					} else if (!selectedUnit.canAttackEnemy(hoveredUnit)) selectedUnit = null;
 					else selectedUnit.attack(hoveredUnit);
-				} else if (!selectedUnit.canMoveToTile(hoveredTileX, hoveredTileY)) {
+				} else if (!selectedUnit.canMoveToTile(hoveredCell.x, hoveredCell.y)) {
 					selectedUnit = null;
 					return true;
-				} else selectedUnit.move(hoveredTileX, hoveredTileY);
+				} else selectedUnit.move(hoveredCell.x, hoveredCell.y);
 
 				if(selectedUnit != null && !selectedUnit.hasAvailableAction()) selectedUnit = null;
 			}
@@ -165,7 +167,7 @@ public class MapInput implements InputProcessor {
 
 	public void spawnSelectedUnit() {
 		if (app.gameScreen.chosenUnit != null) {
-			if (hoveredTileX == 0) world.user.spawnUnit(hoveredTileX, hoveredTileY, app.gameScreen.chosenUnit, true);
+			if (hoveredCell.x == 0) world.user.spawnUnit(hoveredCell.x, hoveredCell.y, app.gameScreen.chosenUnit, true);
 			app.gameScreen.chosenUnit = null;
 			app.gameScreen.unitButtonGroup.uncheckAll();
 			selectedUnit = null;

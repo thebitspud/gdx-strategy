@@ -44,12 +44,12 @@ public class EnemyAI extends Player {
 			for (int i = 0; i < 8; i++) {
 				if (!unit.moveAvailable()) break;
 
-				int nextX = unit.getTileX();
-				if (unit.getTileX() < 2) nextX += r.nextInt(agi + 1);
-				else if (unit.getTileX() > 8) nextX -= r.nextInt(agi + 1);
+				int nextX = unit.getCell().x;
+				if (unit.getCell().x < 2) nextX += r.nextInt(agi + 1);
+				else if (unit.getCell().x > 8) nextX -= r.nextInt(agi + 1);
 				else nextX += r.nextInt(agi * 2 + 1) - agi;
 
-				int nextY = unit.getTileY() + r.nextInt(agi * 2 + 1) - agi;
+				int nextY = unit.getCell().y + r.nextInt(agi * 2 + 1) - agi;
 				unit.move(nextX, nextY);
 			}
 

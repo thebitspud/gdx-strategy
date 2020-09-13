@@ -1,11 +1,13 @@
 package io.thebitspud.libgdxstrategy.world;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 import io.thebitspud.libgdxstrategy.StrategyGame;
 import io.thebitspud.libgdxstrategy.players.Player;
 import io.thebitspud.libgdxstrategy.players.User;
+import io.thebitspud.libgdxstrategy.tools.JTimerUtil;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
 import java.awt.*;
@@ -60,31 +62,45 @@ public class Unit extends Sprite {
 	private final World world;
 	private final Player player;
 
-	private int tileX, tileY, currentHealth;
-	private boolean active, canMove, canAttack;
+	private int currentHealth;
+	private final Point cell, lastCell;
+	private boolean active = true, canMove, canAttack;
 	private final ID id;
 	private final HashMap<Point, Integer> moves;
+	private final JTimerUtil moveTween;
 
 	public Unit(int x, int y, ID id, Player player, StrategyGame app) {
 		super(app.assets.units[Arrays.asList(ID.values()).indexOf(id)]
 				[(player.getAlliance() == Player.Alliance.RED) ? 0 : 1]);
-		this.tileX = x;
-		this.tileY = y;
 		this.app = app;
 		this.player = player;
 		this.id = id;
 		this.currentHealth = id.maxHealth;
 
+		cell = new Point(x, y);
+		lastCell = new Point(x ,y);
 		world = app.gameScreen.world;
-		active = true;
 		moves = new HashMap<>();
+		moveTween = new JTimerUtil(1, false, false) {
+			@Override
+			public void onActivation() {}
+		};
 
 		if(player.getAlliance() == Player.Alliance.BLUE) flip(true, false);
 	}
 
 	public void update() {
-		Vector2 offset = world.getTileOffset(tileX, tileY);
-		setPosition(offset.x, offset.y);
+		moveTween.tick(Gdx.graphics.getDeltaTime());
+
+		Vector2 offset = world.getTileOffset(cell.x, cell.y);
+
+		if (moveTween.isActive()) {
+			Vector2 lastOffset = world.getTileOffset(lastCell.x, lastCell.y);
+			float completion = (float) (moveTween.getTimeElapsed() / moveTween.getTimerDuration());
+			float tweenOffsetX = offset.x * completion + lastOffset.x * (1 - completion);
+			float tweenOffsetY = offset.y * completion + lastOffset.y * (1 - completion);
+			setPosition(tweenOffsetX, tweenOffsetY);
+		} else setPosition(offset.x, offset.y);
 
 		float scale = world.tileSize / world.mapCamera.zoom;
 		setSize(scale, scale);
@@ -115,11 +131,11 @@ public class Unit extends Sprite {
 
 		for (int x = -searchRadius; x < searchRadius + 1; x++) {
 			for (int y = -searchRadius; y < searchRadius + 1; y++) {
-				Vector2 offset = world.getTileOffset(tileX + x, tileY + y);
+				Vector2 offset = world.getTileOffset(cell.x + x, cell.y + y);
 
-				if (canMoveToTile(x + tileX, y + tileY)) {
+				if (canMoveToTile(x + cell.x, y + cell.y)) {
 					app.batch.draw(app.assets.highlights[6], offset.x, offset.y, scale, scale);
-				} else if (canAttackEnemy(world.getUnit(x + tileX, y + tileY))) {
+				} else if (canAttackEnemy(world.getUnit(x + cell.x, y + cell.y))) {
 					app.batch.draw(app.assets.highlights[7], offset.x, offset.y, scale, scale);
 					attackAvailable = true;
 				}
@@ -132,15 +148,19 @@ public class Unit extends Sprite {
 	public void move(int x, int y) {
 		if (!canMoveToTile(x, y)) return;
 
-		this.tileX = x;
-		this.tileY = y;
+		lastCell.setLocation(cell);
+		cell.setLocation(x, y);
+
+		int distance = (id.agility * 2 + 2) - Math.min(2, moves.get(new Point(x, y)));
+		moveTween.setTimerDuration(distance / 8f);
+		moveTween.setActive(true);
 
 		canMove = false;
 		if (getTarget() == null) canAttack = false;
 	}
 
 	public void findMoves() {
-		findMoves(tileX, tileY, id.agility * 2 + 1);
+		findMoves(cell.x, cell.y, id.agility * 2 + 1);
 	}
 
 	public void findMoves(int x, int y, int movesLeft) {
@@ -186,7 +206,7 @@ public class Unit extends Sprite {
 		if (!canAttack) return null;
 		for (int x = -id.range; x < id.range + 1; x++) {
 			for (int y = -id.range; y < id.range + 1; y++) {
-				Unit enemy = world.getUnit(tileX + x, tileY + y);
+				Unit enemy = world.getUnit(cell.x + x, cell.y + y);
 				if (canAttackEnemy(enemy)) return enemy;
 			}
 		}
@@ -199,8 +219,8 @@ public class Unit extends Sprite {
 		if (enemy.isDead()) return false;
 		if (enemy.getAlliance() == getAlliance()) return false;
 
-		int diffX = Math.abs(tileX - enemy.getTileX());
-		int diffY = Math.abs(tileY - enemy.getTileY());
+		int diffX = Math.abs(cell.x - enemy.getCell().x);
+		int diffY = Math.abs(cell.y - enemy.getCell().y);
 
 		return 2 * (diffX + diffY) - Math.min(diffX, diffY) <= (id.range * 2 + 1);
 	}
@@ -225,16 +245,12 @@ public class Unit extends Sprite {
 		return canMove;
 	}
 
-	public int getTileX() {
-		return tileX;
-	}
-
-	public int getTileY() {
-		return tileY;
-	}
-
 	public float getHealthPercent() {
 		return (float) currentHealth / id.maxHealth * 100;
+	}
+
+	public Point getCell() {
+		return cell;
 	}
 
 	public ID getID() {
